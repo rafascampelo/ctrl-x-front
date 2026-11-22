@@ -1,10 +1,68 @@
 :root {
- --color-background: #f3f7f5; --color-surface: #fff; --color-text: #193c34;
- --color-muted: #4c675e; --color-tertiary: #61756e; --color-primary: #17634e;
- --color-primary-hover: #104b3b; --color-primary-soft: #e5f1eb; --color-border: #dbe5df;
- --color-focus: #2563a6; --color-input: #f7faf8; --color-error: #a13030; --color-error-soft: #fff1ef;
- --radius-control: .5rem; --radius-card: 1rem;
- --shadow-surface: 0 0 0 1px rgb(25 60 52 / 5%), 0 2px 4px rgb(25 60 52 / 3%), 0 8px 24px rgb(25 60 52 / 3%);
- --space-1: .5rem; --space-2: 1rem; --space-3: 1.5rem; --space-4: 2rem; --content-width: 72rem;
- --font-body: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  /* Base e Superfícies (Preservando variáveis originais) */
+  --color-background: #f4f7f6;
+  --color-surface: #ffffff;
+  --color-surface-elevated: #ffffff;
+  --color-surface-subtle: #eef4f1;
+
+  /* Tipografia */
+  --color-text: #102a24;
+  --color-muted: #47635b;
+  --color-tertiary: #6b847d;
+
+  /* Marca Principal (Verde Clínico / Reabilitação) */
+  --color-primary: #0f6b53;
+  --color-primary-hover: #0a523f;
+  --color-primary-soft: #e3f3ed;
+
+  /* Destaque Tecnológico (Identidade Ctrl X / Ações Especiais / Mapa Corporal) */
+  --color-accent: #6d28d9;
+  --color-accent-hover: #5b21b6;
+  --color-accent-soft: #f3e8ff;
+
+  /* Bordas, Inputs e Foco */
+  --color-border: #d7e3de;
+  --color-border-strong: #b8cbc3;
+  --color-focus: #0f6b53;
+  --color-input: #f8fbfa;
+
+  /* Estados Semânticos (Feedback Clínico e Alertas) */
+  --color-success: #0d9488;
+  --color-success-soft: #ccfbf1;
+  --color-warning: #d97706;
+  --color-warning-soft: #fef3c7;
+  --color-info: #0284c7;
+  --color-info-soft: #e0f2fe;
+  --color-error: #be123c;
+  --color-error-soft: #ffe4e6;
+
+  /* Escala Visual Analógica de Dor (EVA 0 a 10) */
+  --pain-none: #10b981;
+  --pain-none-soft: #ecfdf5;
+  --pain-mild: #0ea5e9;
+  --pain-mild-soft: #f0f9ff;
+  --pain-moderate: #f59e0b;
+  --pain-moderate-soft: #fffbeb;
+  --pain-severe: #e11d48;
+  --pain-severe-soft: #fff1f2;
+
+  /* Geometria e Elevação (Ergonomia para uso com dor) */
+  --radius-control: 0.75rem;
+  --radius-card: 1.125rem;
+  --radius-pill: 9999px;
+  --shadow-sm: 0 1px 2px rgb(16 42 36 / 4%);
+  --shadow-surface: 0 1px 3px rgb(16 42 36 / 4%), 0 8px 24px rgb(16 42 36 / 5%);
+  --shadow-floating: 0 12px 32px rgb(16 42 36 / 10%);
+
+  /* Espaçamentos e Layout */
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2rem;
+  --space-5: 3rem;
+  --content-width: 72rem;
+
+  /* Fontes */
+  --font-display: "Poppins", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Inter", "Segoe UI", system-ui, sans-serif;
 }
