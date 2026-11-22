@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { fetchJson } from "@/services/api-client";
 import { healthSchema } from "@/types/health";
 import { getApiHealthUrl } from "./api-health-url";
-import { Button } from "@/components/ui/button";
 import styles from "./api-health.module.css";
 
 export function ApiHealth() {
