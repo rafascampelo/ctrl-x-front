@@ -1,0 +1,272 @@
+.stack {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.surface {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-surface);
+  padding: clamp(1.5rem, 3vw, 2rem);
+  min-width: 0;
+}
+
+.surfaceHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.surfaceHeader h2,
+.surface h2 {
+  font-size: 1.25rem;
+  margin: 0;
+  color: var(--color-text);
+}
+
+.subtitle {
+  margin: 0.375rem 0 0;
+  font-size: 0.875rem;
+  color: var(--color-muted);
+}
+
+/* Formulário Clínico Estruturado */
+.form {
+  display: grid;
+  gap: 1.125rem;
+}
+
+.twoCols {
+  display: grid;
+  grid-template-columns: 1.3fr 0.7fr;
+  gap: 0.875rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.375rem;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.textarea {
+  width: 100%;
+  min-height: 5rem;
+  resize: vertical;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.errorText {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-error);
+}
+
+.errorText:empty {
+  display: none;
+}
+
+.actionsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+/* Cards de Prontuário */
+.recordsList {
+  display: grid;
+  gap: 1.125rem;
+}
+
+.recordCard {
+  padding: 1.25rem;
+  border-radius: var(--radius-control);
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  display: grid;
+  gap: 0.875rem;
+}
+
+.recordCardSelected {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 1px var(--color-primary);
+}
+
+.recordTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.statusDraft,
+.statusFinalized {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.statusDraft {
+  background: var(--color-warning-soft);
+  color: #92400e;
+}
+
+.statusFinalized {
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+
+.recordDate {
+  font-size: 0.75rem;
+  color: var(--color-tertiary);
+}
+
+.recordTitle {
+  margin: 0;
+  font-size: 1.0625rem;
+  color: var(--color-text);
+}
+
+.clinicalGrid {
+  display: grid;
+  gap: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.clinicalBlock dt {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-tertiary);
+  margin-bottom: 0.25rem;
+}
+
+.clinicalBlock dd {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--color-text);
+  line-height: 1.55;
+  white-space: pre-line;
+}
+
+/* Seção de Adendos (Append-only) */
+.amendmentsBox {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+.amendmentsTitle {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-accent);
+}
+
+.amendmentItem {
+  padding: 0.75rem 0.875rem;
+  border-radius: 0.5rem;
+  background: var(--color-accent-soft);
+  border-left: 3px solid var(--color-accent);
+  display: grid;
+  gap: 0.25rem;
+}
+
+.amendmentMeta {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-accent-hover);
+}
+
+.amendmentText {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-text);
+}
+
+.amendmentForm {
+  display: grid;
+  gap: 0.625rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.smallBtn {
+  min-height: 2.25rem;
+  padding: 0.375rem 0.875rem;
+  font-size: 0.8125rem;
+}
+
+.emptyState {
+  padding: 2.25rem 1.5rem;
+  text-align: center;
+  border-radius: var(--radius-control);
+  background: var(--color-background);
+  border: 1px dashed var(--color-border-strong);
+  color: var(--color-muted);
+}
+
+/* Modal de Confirmação de Finalização */
+.dialog {
+  max-width: min(30rem, calc(100% - 2rem));
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  padding: 1.75rem;
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-floating);
+}
+
+.dialog::backdrop {
+  background: rgb(16 42 36 / 50%);
+  backdrop-filter: blur(4px);
+}
+
+.dialog h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.375rem;
+}
+
+.dialog p {
+  margin-bottom: 1.5rem;
+  color: var(--color-muted);
+  font-size: 0.9375rem;
+}
+
+@media (max-width: 960px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 540px) {
+  .twoCols {
+    grid-template-columns: 1fr;
+  }
+}

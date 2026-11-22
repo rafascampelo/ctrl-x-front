@@ -1,0 +1,3660 @@
+﻿=== src\app\layout.tsx ===
+import type { Metadata } from "next";
+import type { ReactNode } from "react";
+import { AppShell } from "@/components/app-shell/app-shell";
+import { Providers } from "./providers";
+import "@/styles/globals.css";
+
+export const metadata: Metadata = {
+  title: { default: "Ctrl X | Acompanhamento de saÃºde", template: "%s | Ctrl X" },
+  description: "Acompanhe sua saÃºde e seu histÃ³rico de cuidados com o Ctrl X.",
+};
+
+export default function RootLayout({ children }: { children: ReactNode }) {
+  return (
+    <html lang="pt-BR">
+      <body>
+        <Providers>
+          <AppShell>{children}</AppShell>
+        </Providers>
+      </body>
+    </html>
+  );
+}
+
+=== src\app\page.module.css ===
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 3.5rem;
+  padding-block: 1rem 2rem;
+}
+
+.content {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: clamp(2rem, 5vw, 4rem);
+  align-items: center;
+}
+
+.introduction {
+  padding-block: 1rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.875rem;
+  margin-bottom: 1.5rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.badgeDot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--color-primary);
+  box-shadow: 0 0 0 3px rgb(15 107 83 / 20%);
+}
+
+.introduction h1 {
+  margin: 0;
+  font-size: clamp(2.4rem, 4.4vw, 3.85rem);
+  font-weight: 700;
+  line-height: 1.08;
+  color: var(--color-text);
+}
+
+.highlight {
+  color: var(--color-primary);
+}
+
+.intro {
+  margin-block: 1.5rem 2.25rem;
+  color: var(--color-muted);
+  max-width: 33rem;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.875rem;
+}
+
+.primaryAction {
+  padding-inline: 1.5rem;
+  box-shadow: 0 4px 14px rgb(15 107 83 / 22%);
+}
+
+.secondaryAction {
+  padding-inline: 1.5rem;
+}
+
+.trustBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.625rem;
+  margin-top: 2rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-tertiary);
+}
+
+.separator {
+  color: var(--color-border-strong);
+}
+
+/* Card da Jornada ClÃ­nica */
+.journey {
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  padding: clamp(1.75rem, 3.5vw, 2.75rem);
+  box-shadow: var(--shadow-surface);
+  position: relative;
+}
+
+.journeyHeader {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.journeyHeader h2 {
+  margin: 0.25rem 0 0;
+  font-size: clamp(1.45rem, 2.5vw, 1.75rem);
+  letter-spacing: -0.025em;
+  color: var(--color-text);
+}
+
+.steps {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 1.125rem;
+}
+
+.stepItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 0.875rem;
+  border-radius: var(--radius-control);
+  background: var(--color-background);
+  border: 1px solid transparent;
+  transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+}
+
+.stepItem:hover {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  transform: translateX(4px);
+}
+
+.stepNumber {
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
+  border-radius: 0.625rem;
+  display: grid;
+  place-items: center;
+  flex: 0 0 2.5rem;
+  height: 2.5rem;
+  font-family: var(--font-display);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.stepBody h3 {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem;
+  color: var(--color-text);
+}
+
+.stepBody p {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Barra de Status da API */
+.connection {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  padding: 1.25rem 1.75rem;
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.connectionInfo h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0.125rem 0 0;
+  color: var(--color-text);
+}
+
+@media (max-width: 860px) {
+  .content {
+    grid-template-columns: 1fr;
+    gap: 2.25rem;
+  }
+
+  .introduction {
+    padding-block: 0;
+  }
+
+  .connection {
+    padding: 1.25rem;
+  }
+}
+
+=== src\app\page.tsx ===
+import { ApiHealth } from "@/features/system/api-health";
+import Link from "next/link";
+import ui from "@/components/ui/ui.module.css";
+import styles from "./page.module.css";
+
+export default function HomePage() {
+  return (
+    <div className={styles.wrapper}>
+      <div className={styles.content}>
+        <section className={styles.introduction} aria-labelledby="titulo">
+          <div className={styles.badge}>
+            <span className={styles.badgeDot} aria-hidden="true" />
+            <span>Plataforma de ReabilitaÃ§Ã£o &amp; Fisioterapia</span>
+          </div>
+
+          <h1 id="titulo">
+            Seu cuidado,<br />
+            <span className={styles.highlight}>acompanhado de perto.</span>
+          </h1>
+
+          <p className={styles.intro}>
+            Cada movimento importa. Registre sua evoluÃ§Ã£o diÃ¡ria, conecte-se ao seu
+            fisioterapeuta e acompanhe todo o seu histÃ³rico clÃ­nico em um sÃ³ lugar.
+          </p>
+
+          <div className={styles.actions}>
+            <Link className={[ui.button, styles.primaryAction].join(" ")} href="/login">
+              Acessar meu espaÃ§o <span aria-hidden="true">â†’</span>
+            </Link>
+            <Link className={[ui.button, ui.secondary, styles.secondaryAction].join(" ")} href="/register">
+              Criar minha conta
+            </Link>
+          </div>
+
+          <div className={styles.trustBar}>
+            <span>Pacientes &amp; Fisioterapeutas</span>
+            <span className={styles.separator} aria-hidden="true">â€¢</span>
+            <span>HistÃ³rico clÃ­nico contÃ­nuo</span>
+          </div>
+        </section>
+
+        <aside className={styles.journey} aria-labelledby="continuidade">
+          <div className={styles.journeyHeader}>
+            <p className={ui.eyebrow}>SaÃºde em continuidade</p>
+            <h2 id="continuidade">
+              Pessoas no centro.<br />
+              Cuidado em conexÃ£o.
+            </h2>
+          </div>
+
+          <ol className={styles.steps}>
+            <li className={styles.stepItem}>
+              <span className={styles.stepNumber}>01</span>
+              <div className={styles.stepBody}>
+                <h3>Seu prÃ³prio espaÃ§o</h3>
+                <p>Acesso individual seguro, adaptado ao seu perfil clÃ­nico.</p>
+              </div>
+            </li>
+
+            <li className={styles.stepItem}>
+              <span className={styles.stepNumber}>02</span>
+              <div className={styles.stepBody}>
+                <h3>Uma relaÃ§Ã£o de cuidado</h3>
+                <p>Ambientes dedicados para pacientes e profissionais vinculados.</p>
+              </div>
+            </li>
+
+            <li className={styles.stepItem}>
+              <span className={styles.stepNumber}>03</span>
+              <div className={styles.stepBody}>
+                <h3>HistÃ³rico em construÃ§Ã£o</h3>
+                <p>DiÃ¡rio de dor, exercÃ­cios e evoluÃ§Ã£o terapÃªutica estruturados.</p>
+              </div>
+            </li>
+          </ol>
+        </aside>
+      </div>
+
+      <section className={styles.connection} aria-labelledby="conexao">
+        <div className={styles.connectionInfo}>
+          <p className={ui.eyebrow}>Disponibilidade do sistema</p>
+          <h2 id="conexao">ConexÃ£o com o serviÃ§o</h2>
+        </div>
+        <ApiHealth />
+      </section>
+    </div>
+  );
+}
+
+=== src\app\providers.tsx ===
+"use client";
+
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useState, type ReactNode } from "react";
+
+export function Providers({ children }: { children: ReactNode }) {
+  const [queryClient] = useState(
+    () => new QueryClient({ defaultOptions: { queries: { retry: false } } }),
+  );
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+}
+
+=== src\app\api\health\route.ts ===
+export const dynamic = "force-dynamic";
+
+export function GET() {
+  return Response.json(
+    { status: "ok" },
+    { headers: { "Cache-Control": "no-store" } },
+  );
+}
+
+=== src\app\login\page.tsx ===
+import { Suspense } from "react";
+import { AuthForm } from "@/features/auth/form";
+import { ContentState } from "@/components/ui/content-state";
+export default function Page() { return <Suspense fallback={<ContentState kind="loading" title="Carregando seu acessoâ€¦" />}><AuthForm register={false} /></Suspense>; }
+
+=== src\app\patient\dashboard\page.tsx ===
+import { Dashboard } from "@/features/auth/dashboard";
+export default function PatientDashboard() { return <Dashboard role="PATIENT" />; }
+
+=== src\app\patient\physiotherapist\page.tsx ===
+import { CareArea } from "@/features/care/care-area";
+import { RelationshipsPage } from "@/features/care/relationships";
+
+export const metadata = { title: "Meu fisioterapeuta" };
+export default function Page() {
+  return (
+    <CareArea
+      role="PATIENT"
+      title="Meu fisioterapeuta"
+      description="Gerencie suas solicitaÃ§Ãµes e escolha quem acompanha seu cuidado."
+    >
+      <RelationshipsPage />
+    </CareArea>
+  );
+}
+
+=== src\app\patient\profile\page.tsx ===
+import { CareArea } from "@/features/care/care-area";
+import { ProfilePage } from "@/features/care/profile";
+
+export const metadata = { title: "Meu perfil" };
+export default function Page() {
+  return (
+    <CareArea
+      role="PATIENT"
+      title="Meu perfil"
+      description="Mantenha sua identificaÃ§Ã£o atualizada para dar continuidade ao seu cuidado."
+    >
+      <ProfilePage />
+    </CareArea>
+  );
+}
+
+=== src\app\professional\dashboard\page.tsx ===
+import { Dashboard } from "@/features/auth/dashboard";
+export default function ProfessionalDashboard() { return <Dashboard role="PROFESSIONAL" />; }
+
+=== src\app\professional\patients\page.tsx ===
+import { CareArea } from "@/features/care/care-area";
+import { RelationshipsPage } from "@/features/care/relationships";
+
+export const metadata = { title: "Meus pacientes" };
+export default function Page() {
+  return (
+    <CareArea
+      role="PROFESSIONAL"
+      title="Meus pacientes"
+      description="Responda Ã s solicitaÃ§Ãµes e consulte os pacientes que autorizaram seu acompanhamento."
+    >
+      <RelationshipsPage />
+    </CareArea>
+  );
+}
+
+=== src\app\professional\patients\[patientId]\page.tsx ===
+import { CareArea } from "@/features/care/care-area";
+import { PatientIdentification } from "@/features/care/patient-identification";
+
+export const metadata = { title: "IdentificaÃ§Ã£o do paciente" };
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ patientId: string }>;
+}) {
+  const { patientId } = await params;
+  return (
+    <CareArea
+      role="PROFESSIONAL"
+      title="IdentificaÃ§Ã£o do paciente"
+      description="Consulte a identificaÃ§Ã£o autorizada para este acompanhamento."
+    >
+      <PatientIdentification patientId={patientId} />
+    </CareArea>
+  );
+}
+
+=== src\app\professional\profile\page.tsx ===
+import { CareArea } from "@/features/care/care-area";
+import { ProfilePage } from "@/features/care/profile";
+
+export const metadata = { title: "Perfil do fisioterapeuta" };
+export default function Page() {
+  return (
+    <CareArea
+      role="PROFESSIONAL"
+      title="Meu perfil profissional"
+      description="Confira sua identificaÃ§Ã£o e seu registro para acompanhar pacientes no Ctrl X."
+    >
+      <ProfilePage />
+    </CareArea>
+  );
+}
+
+=== src\app\register\page.tsx ===
+import { Suspense } from "react";
+import { AuthForm } from "@/features/auth/form";
+import { ContentState } from "@/components/ui/content-state";
+export default function Page() { return <Suspense fallback={<ContentState kind="loading" title="Carregando seu acessoâ€¦" />}><AuthForm register={true} /></Suspense>; }
+
+=== src\components\app-shell\app-shell.module.css ===
+.shell {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.skipLink {
+  position: absolute;
+  top: -8rem;
+  left: 1rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-surface);
+  font-weight: 600;
+  z-index: 100;
+}
+
+.skipLink:focus {
+  top: 1rem;
+}
+
+/* Barra Superior Fixa */
+.headerWrapper {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  width: 100%;
+  background: rgb(255 255 255 / 88%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.header,
+.main,
+.footer {
+  width: min(calc(100% - 3rem), var(--content-width));
+  margin-inline: auto;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding-block: 0.9375rem;
+}
+
+/* Marca Ctrl X */
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.brand:hover {
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.mark {
+  display: grid;
+  place-items: center;
+  width: 2.375rem;
+  height: 2.375rem;
+  background: linear-gradient(135deg, var(--color-primary) 0%, #158063 100%);
+  color: #ffffff;
+  border-radius: 0.6875rem;
+  font-family: var(--font-display);
+  font-size: 1.375rem;
+  font-weight: 700;
+  line-height: 1;
+  padding-bottom: 2px;
+  box-shadow: 0 3px 10px rgb(15 107 83 / 24%);
+  transition: transform 0.18s ease;
+}
+
+.brand:hover .mark {
+  transform: scale(1.04);
+}
+
+.brandTitle {
+  font-family: var(--font-display);
+  font-size: 1.375rem;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  color: var(--color-text);
+}
+
+.brandHighlight {
+  color: var(--color-primary);
+}
+
+.brandLabel {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-tertiary);
+  letter-spacing: 0.01em;
+  padding-left: 0.875rem;
+  border-left: 1px solid var(--color-border);
+}
+
+/* NavegaÃ§Ã£o e BotÃµes do Header */
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.navLink,
+.navSecondary,
+.navPrimary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  padding: 0.5rem 1.125rem;
+  border-radius: var(--radius-control);
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  transition: background-color 0.16s ease, color 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease, transform 0.12s ease;
+}
+
+/* Link simples (InÃ­cio) */
+.navLink {
+  color: var(--color-muted);
+  background: transparent;
+}
+
+.navLink:hover {
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
+  text-decoration: none;
+}
+
+.navLink[aria-current="page"] {
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+/* BotÃ£o SecundÃ¡rio (Entrar) */
+.navSecondary {
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  box-shadow: var(--shadow-sm);
+}
+
+.navSecondary:hover {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  background: var(--color-surface-subtle);
+  text-decoration: none;
+}
+
+.navSecondary[aria-current="page"] {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+/* BotÃ£o PrimÃ¡rio (Criar conta / Meu espaÃ§o) */
+.navPrimary {
+  color: #ffffff;
+  background: var(--color-primary);
+  border: 1px solid transparent;
+  box-shadow: 0 2px 6px rgb(15 107 83 / 22%);
+}
+
+.navPrimary:hover {
+  color: #ffffff;
+  background: var(--color-primary-hover);
+  text-decoration: none;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgb(15 107 83 / 28%);
+}
+
+.navPrimary:active {
+  transform: translateY(0);
+}
+
+/* Ãrea Principal */
+.main {
+  flex: 1;
+  padding-block: clamp(2rem, 4.5vw, 3.5rem);
+}
+
+/* RodapÃ© */
+.footerWrapper {
+  width: 100%;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-block: 1.25rem;
+  color: var(--color-tertiary);
+  font-size: 0.8125rem;
+}
+
+.footerBrand strong {
+  color: var(--color-text);
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+
+.footerBadge {
+  padding: 0.25rem 0.625rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+@media (max-width: 720px) {
+  .brandLabel {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .header,
+  .main,
+  .footer {
+    width: calc(100% - 2rem);
+  }
+
+  .header {
+    flex-wrap: wrap;
+    gap: 0.875rem;
+    padding-block: 0.875rem;
+  }
+
+  .nav {
+    width: 100%;
+  }
+
+  .navLink,
+  .navSecondary,
+  .navPrimary {
+    flex: 1;
+    padding-inline: 0.75rem;
+    font-size: 0.8125rem;
+  }
+}
+
+=== src\components\app-shell\app-shell.tsx ===
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import type { ReactNode } from "react";
+import styles from "./app-shell.module.css";
+
+export function AppShell({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+  const protectedArea =
+    pathname.startsWith("/patient/") || pathname.startsWith("/professional/");
+
+  const dashboardHref = pathname.startsWith("/patient/")
+    ? "/patient/dashboard"
+    : "/professional/dashboard";
+
+  return (
+    <div className={styles.shell}>
+      <a className={styles.skipLink} href="#conteudo">
+        Pular para o conteÃºdo
+      </a>
+
+      <header className={styles.headerWrapper}>
+        <div className={styles.header}>
+          <Link
+            className={styles.brand}
+            href="/"
+            aria-label="Ctrl X Â· PÃ¡gina inicial"
+          >
+            <span className={styles.mark} aria-hidden="true">
+              x
+            </span>
+            <span className={styles.brandTitle}>
+              Ctrl <span className={styles.brandHighlight}>X</span>
+            </span>
+            <span className={styles.brandLabel}>SaÃºde em continuidade</span>
+          </Link>
+
+          <nav aria-label="NavegaÃ§Ã£o principal" className={styles.nav}>
+            <Link
+              className={styles.navLink}
+              href="/"
+              aria-current={pathname === "/" ? "page" : undefined}
+            >
+              InÃ­cio
+            </Link>
+
+            {!protectedArea && (
+              <>
+                <Link
+                  className={styles.navSecondary}
+                  href="/login"
+                  aria-current={pathname === "/login" ? "page" : undefined}
+                >
+                  Entrar
+                </Link>
+                <Link
+                  className={styles.navPrimary}
+                  href="/register"
+                  aria-current={pathname === "/register" ? "page" : undefined}
+                >
+                  Criar conta
+                </Link>
+              </>
+            )}
+
+            {protectedArea && (
+              <Link
+                className={styles.navPrimary}
+                href={dashboardHref}
+                aria-current={pathname.endsWith("/dashboard") ? "page" : undefined}
+              >
+                Meu espaÃ§o
+              </Link>
+            )}
+          </nav>
+        </div>
+      </header>
+
+      <main className={styles.main} id="conteudo" tabIndex={-1}>
+        {children}
+      </main>
+
+      <footer className={styles.footerWrapper}>
+        <div className={styles.footer}>
+          <span className={styles.footerBrand}>
+            <strong>Ctrl X</strong> Â· Acompanhamento de saÃºde e reabilitaÃ§Ã£o
+          </span>
+          <span className={styles.footerBadge}>Ambiente de desenvolvimento</span>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+=== src\components\ui\button.tsx ===
+import type { ButtonHTMLAttributes } from "react";
+import styles from "./ui.module.css";
+export function Button({ className = "", variant = "primary", ...props }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "secondary" }) {
+ return <button className={[styles.button, variant === "secondary" ? styles.secondary : "", className].join(" ")} {...props} />;
+}
+
+=== src\components\ui\content-state.tsx ===
+import type { ReactNode } from "react";
+import styles from "./ui.module.css";
+export function ContentState({ title, children, kind = "empty" }: { title: string; children?: ReactNode; kind?: "loading" | "error" | "empty" }) {
+ return <section className={[styles.state, kind === "error" ? styles.error : ""].join(" ")} role={kind === "error" ? "alert" : kind === "loading" ? "status" : undefined} aria-busy={kind === "loading" ? true : undefined}><h2>{title}</h2>{children}</section>;
+}
+
+=== src\components\ui\ui.module.css ===
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0.625rem 1.375rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  background: var(--color-primary);
+  color: #ffffff;
+  font-family: var(--font-display);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  box-shadow: 0 2px 6px rgb(15 107 83 / 20%);
+  transition: background-color 160ms ease, transform 140ms cubic-bezier(0.23, 1, 0.32, 1), box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.button:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+  color: #ffffff;
+  text-decoration: none;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgb(15 107 83 / 26%);
+}
+
+.button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.secondary {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-color: var(--color-border-strong);
+  box-shadow: var(--shadow-sm);
+}
+
+.secondary:hover:not(:disabled) {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgb(16 42 36 / 6%);
+}
+
+.ghost {
+  background: transparent;
+  color: var(--color-muted);
+  border-color: transparent;
+  box-shadow: none;
+  padding-inline: 0.875rem;
+}
+
+.ghost:hover:not(:disabled) {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  text-decoration: none;
+  box-shadow: none;
+}
+
+.eyebrow {
+  margin: 0 0 0.75rem;
+  color: var(--color-primary);
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.state {
+  padding: 2rem;
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-surface);
+}
+
+.state h2 {
+  font-size: 1.25rem;
+  margin: 0 0 0.75rem;
+  color: var(--color-text);
+}
+
+.state p {
+  color: var(--color-muted);
+  margin: 0 0 1.5rem;
+  max-width: 38rem;
+}
+
+.state p:last-child {
+  margin-bottom: 0;
+}
+
+.state::before {
+  content: "";
+  display: block;
+  width: 2.25rem;
+  height: 0.25rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  margin-bottom: 1.5rem;
+}
+
+.error {
+  background: var(--color-error-soft);
+  border-color: rgb(190 18 60 / 20%);
+}
+
+.error::before {
+  background: var(--color-error);
+}
+
+=== src\features\auth\auth.ts ===
+import { z } from "zod";
+import { fetchJson } from "../../services/api-client.ts";
+import { crefitoNumberSchema, crefitoRegionSchema } from "../../types/care.ts";
+
+export const userSchema = z.object({ id: z.string().uuid(), email: z.string().email(), role: z.enum(["PATIENT", "PROFESSIONAL"]) });
+export type User = z.infer<typeof userSchema>;
+export const credentialsSchema = z.object({
+  email: z.string().trim().toLowerCase().email("Informe um e-mail vÃ¡lido.").max(254),
+  password: z.string().min(12, "Use pelo menos 12 caracteres.").max(128, "Use no mÃ¡ximo 128 caracteres."),
+});
+export const registrationSchema = credentialsSchema.extend({
+  full_name: z.string().trim().min(1, "Informe seu nome.").max(200),
+  role: z.enum(["PATIENT", "PROFESSIONAL"]),
+  confirmation: z.string(),
+  crefito_region: z.number().optional(),
+  crefito_number: z.string().optional(),
+}).refine((data) => data.password === data.confirmation, { path: ["confirmation"], message: "As senhas nÃ£o coincidem." }).superRefine((data, context) => {
+  if (data.role !== "PROFESSIONAL") return;
+  for (const [field, result] of [
+    ["crefito_region", crefitoRegionSchema.safeParse(data.crefito_region)],
+    ["crefito_number", crefitoNumberSchema.safeParse(data.crefito_number)],
+  ] as const) {
+    if (!result.success) context.addIssue({ code: "custom", path: [field], message: result.error.issues[0].message });
+  }
+});
+
+export class AuthError extends Error {
+  constructor(public status: number, message: string) { super(message); }
+}
+
+export async function authRequest(path: "login" | "register" | "me", body?: object): Promise<User> {
+  const base = process.env.NEXT_PUBLIC_API_URL;
+  if (!base) throw new Error("EndereÃ§o da API nÃ£o configurado.");
+  const response = await fetch(`${base.replace(/\/$/, "")}/auth/${path}`, {
+    method: body ? "POST" : "GET", credentials: "include", cache: "no-store",
+    headers: body ? { "Content-Type": "application/json" } : undefined,
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (!response.ok) {
+    const payload: unknown = await response.json().catch(() => null);
+    const detail = z.object({ detail: z.string() }).safeParse(payload);
+    throw new AuthError(response.status, detail.success ? detail.data.detail : "NÃ£o foi possÃ­vel concluir a solicitaÃ§Ã£o.");
+  }
+  return userSchema.parse(await response.json());
+}
+
+export function dashboardPath(role: User["role"]) {
+  return role === "PATIENT" ? "/patient/dashboard" : "/professional/dashboard";
+}
+
+export async function logout(): Promise<void> {
+  const base = process.env.NEXT_PUBLIC_API_URL;
+  if (!base) throw new Error("EndereÃ§o da API nÃ£o configurado.");
+  await fetchJson(`${base.replace(/\/$/, "")}/auth/logout`, z.undefined(), {
+    method: "POST",
+    credentials: "include",
+  });
+}
+
+=== src\features\auth\dashboard.module.css ===
+.header { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; }
+.header h1 { margin: 0 0 .75rem; font-size: clamp(2rem, 4vw, 2.75rem); font-weight: 650; }
+.header p { color: var(--color-muted); margin: 0; max-width: 40rem; }
+.badge { padding: .5rem 1rem; background: var(--color-primary-soft); color: var(--color-primary); border-radius: var(--radius-control); font-size: .8125rem; font-weight: 600; }
+.layout { display: grid; grid-template-columns: 1fr 18rem; gap: 1.5rem; align-items: start; }
+.account { background: var(--color-surface); padding: 1.5rem; border-radius: var(--radius-card); box-shadow: var(--shadow-surface); }
+.account h2 { font-size: 1rem; margin: 0 0 1.5rem; }
+.account dl { margin: 0; }
+.account dt { font-size: .75rem; color: var(--color-tertiary); margin-bottom: .25rem; }
+.account dd { font-size: .875rem; margin: 0 0 1rem; overflow-wrap: anywhere; }
+.account dd:last-child { margin-bottom: 0; }
+.links { display: grid; gap: .5rem; margin-top: 1.5rem; }
+.links a { display: flex; align-items: center; min-height: 2.75rem; font-weight: 600; }
+@media (max-width: 800px) { .layout { grid-template-columns: 1fr; } }
+
+=== src\features\auth\dashboard.tsx ===
+"use client";
+
+import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { ContentState } from "@/components/ui/content-state";
+import ui from "@/components/ui/ui.module.css";
+import styles from "./dashboard.module.css";
+import { authRequest, AuthError, dashboardPath, type User } from "./auth";
+
+export function Dashboard({ role }: { role: User["role"] }) {
+  const router = useRouter();
+  const query = useQuery({ queryKey: ["auth", "me"], queryFn: () => authRequest("me"), retry: false, staleTime: 0, refetchOnWindowFocus: true });
+  useEffect(() => {
+    if (query.error instanceof AuthError && query.error.status === 401) router.replace("/login?expired=1");
+    else if (query.data && query.data.role !== role) router.replace(dashboardPath(query.data.role));
+  }, [query.data, query.error, role, router]);
+  if (query.isPending || (query.error instanceof AuthError && query.error.status === 401) || (query.data && query.data.role !== role)) return <ContentState kind="loading" title="Verificando sua sessÃ£o"><p>Estamos preparando seu espaÃ§o de cuidado.</p></ContentState>;
+  if (query.isError) return <ContentState kind="error" title="NÃ£o foi possÃ­vel verificar sua sessÃ£o"><p>Confira sua conexÃ£o e tente novamente.</p><Button disabled={query.isFetching} onClick={() => void query.refetch()}>{query.isFetching ? "Verificandoâ€¦" : "Tentar novamente"}</Button></ContentState>;
+  const patient = role === "PATIENT";
+  return <section aria-labelledby="dashboard-title">
+    <div className={styles.header}><div><p className={ui.eyebrow}>Meu espaÃ§o Â· Ctrl X</p><h1 id="dashboard-title">{patient ? "Seu cuidado comeÃ§a aqui." : "Um espaÃ§o para acompanhar."}</h1><p>{patient ? "Bem-vindo Ã  sua Ã¡rea de acompanhamento de saÃºde." : "Bem-vindo Ã  sua Ã¡rea profissional de cuidado."}</p></div><span className={styles.badge}>{patient ? "Ãrea do paciente" : "Ãrea do profissional"}</span></div>
+    <div className={styles.layout}><ContentState title="Seu espaÃ§o estÃ¡ em preparaÃ§Ã£o"><p>{patient ? "As ferramentas para acompanhar seu histÃ³rico de saÃºde estarÃ£o disponÃ­veis aqui. Por enquanto, seu acesso Ã  conta jÃ¡ estÃ¡ pronto." : "As ferramentas para acompanhar pacientes e registrar o cuidado estarÃ£o disponÃ­veis aqui. Por enquanto, seu acesso Ã  conta jÃ¡ estÃ¡ pronto."}</p></ContentState>
+    <aside className={styles.account} aria-labelledby="account-title"><h2 id="account-title">Sua conta</h2><dl><dt>E-mail</dt><dd>{query.data.email}</dd><dt>Perfil de acesso</dt><dd>{patient ? "Paciente" : "Fisioterapeuta"}</dd></dl><nav aria-label="Perfil e acompanhamento" className={styles.links}><Link href={patient ? "/patient/profile" : "/professional/profile"}>Meu perfil</Link><Link href={patient ? "/patient/physiotherapist" : "/professional/patients"}>{patient ? "Meu fisioterapeuta" : "Meus pacientes"}</Link></nav></aside></div>
+  </section>;
+}
+
+=== src\features\auth\form.module.css ===
+.wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-block: 0.5rem 2rem;
+}
+
+.card {
+  width: 100%;
+  max-width: 31rem;
+  padding: clamp(1.75rem, 4vw, 2.5rem);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-surface);
+}
+
+.header {
+  margin-bottom: 1.75rem;
+}
+
+.header::before {
+  content: "";
+  display: block;
+  width: 2.25rem;
+  height: 0.25rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+  margin-bottom: 1.25rem;
+}
+
+.card h1 {
+  margin: 0;
+  font-size: clamp(1.65rem, 3vw, 2rem);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.intro {
+  color: var(--color-muted);
+  margin: 0.5rem 0 0;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+}
+
+/* Alertas de Status e Erro */
+.statusBanner,
+.errorBanner {
+  margin: 0 0 1.25rem;
+  padding: 0.875rem 1rem;
+  border-radius: var(--radius-control);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.statusBanner {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-hover);
+  border: 1px solid rgb(15 107 83 / 20%);
+}
+
+.errorBanner {
+  background: var(--color-error-soft);
+  color: var(--color-error);
+  border: 1px solid rgb(190 18 60 / 22%);
+}
+
+/* FormulÃ¡rio */
+.form {
+  display: grid;
+  gap: 1.125rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.375rem;
+}
+
+.labelRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.togglePassword {
+  min-height: auto;
+  padding: 0.125rem 0.375rem;
+  border: none;
+  background: transparent;
+  color: var(--color-primary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border-radius: 0.375rem;
+}
+
+.togglePassword:hover {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-hover);
+}
+
+.card input {
+  width: 100%;
+  min-width: 0;
+  min-height: 2.875rem;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: var(--color-input);
+  color: var(--color-text);
+  font-size: 0.9375rem;
+}
+
+.card input::placeholder {
+  color: var(--color-tertiary);
+}
+
+.card input:hover {
+  border-color: var(--color-border-strong);
+}
+
+.card input[aria-invalid="true"] {
+  border-color: var(--color-error);
+  background: var(--color-error-soft);
+}
+
+/* Seletor de Perfil (Paciente vs Fisioterapeuta) */
+.roleGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.625rem;
+}
+
+.roleOption {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 0.25rem;
+  padding: 0.875rem;
+  border-radius: var(--radius-control);
+  border: 1.5px solid var(--color-border);
+  background: var(--color-input);
+  color: var(--color-text);
+  transition: border-color 0.16s ease, background-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.roleOption:hover {
+  border-color: var(--color-primary);
+  background: var(--color-surface);
+}
+
+.roleActive {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+  box-shadow: 0 0 0 1px var(--color-primary);
+}
+
+.roleTitle {
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.roleActive .roleTitle {
+  color: var(--color-primary-hover);
+}
+
+.roleDesc {
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: var(--color-muted);
+}
+
+/* Bloco Condicional CREFITO */
+.professionalBox {
+  display: grid;
+  gap: 0.875rem;
+  padding: 1rem;
+  border-radius: var(--radius-control);
+  background: var(--color-surface-subtle);
+  border: 1px solid var(--color-border);
+}
+
+.boxTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-primary);
+}
+
+.crefitoGrid {
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  gap: 0.75rem;
+}
+
+/* Textos de Apoio e Erro */
+.errorText {
+  color: var(--color-error);
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.errorText:empty {
+  display: none;
+}
+
+.hint {
+  margin: 0.125rem 0 0;
+  color: var(--color-tertiary);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+.submitButton {
+  width: 100%;
+  min-height: 3rem;
+  margin-top: 0.5rem;
+  font-size: 0.9375rem;
+}
+
+/* RodapÃ© de AlternÃ¢ncia Login / Cadastro */
+.footerSwitch {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  margin-top: 1.75rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--color-border);
+  font-size: 0.875rem;
+  color: var(--color-muted);
+}
+
+.footerSwitch a {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+@media (max-width: 480px) {
+  .roleGrid,
+  .crefitoGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+=== src\features\auth\form.tsx ===
+"use client";
+
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useForm, useWatch } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { z } from "zod";
+import {
+  authRequest,
+  credentialsSchema,
+  dashboardPath,
+  registrationSchema,
+} from "./auth";
+import styles from "./form.module.css";
+import { Button } from "@/components/ui/button";
+import { ContentState } from "@/components/ui/content-state";
+import ui from "@/components/ui/ui.module.css";
+
+type Values = z.input<typeof registrationSchema>;
+
+export function AuthForm({ register: isRegister }: { register: boolean }) {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const params = useSearchParams();
+  const [message, setMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
+  const session = useQuery({
+    queryKey: ["auth", "me"],
+    queryFn: () => authRequest("me"),
+    retry: false,
+    staleTime: 0,
+  });
+
+  useEffect(() => {
+    if (session.data) router.replace(dashboardPath(session.data.role));
+  }, [router, session.data]);
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm<Values>({
+    resolver: zodResolver(
+      isRegister ? registrationSchema : credentialsSchema,
+    ) as never,
+    defaultValues: {
+      email: "",
+      password: "",
+      full_name: "",
+      confirmation: "",
+      role: "PATIENT",
+    },
+  });
+
+  const selectedRole = useWatch({ control, name: "role" });
+  const professional = selectedRole === "PROFESSIONAL";
+
+  async function submit(values: Values) {
+    setMessage("");
+    try {
+      if (isRegister) {
+        await authRequest("register", {
+          email: values.email.trim().toLowerCase(),
+          password: values.password,
+          full_name: values.full_name.trim(),
+          role: values.role,
+          ...(values.role === "PROFESSIONAL"
+            ? {
+                crefito_region: values.crefito_region,
+                crefito_number: values.crefito_number?.trim(),
+              }
+            : {}),
+        });
+        router.push("/login?registered=1");
+      } else {
+        const user = await authRequest("login", {
+          email: values.email.trim().toLowerCase(),
+          password: values.password,
+        });
+        queryClient.clear();
+        router.replace(dashboardPath(user.role));
+      }
+    } catch (error) {
+      setMessage(
+        error instanceof Error ? error.message : "Erro de conexÃ£o com o serviÃ§o.",
+      );
+    }
+  }
+
+  if (session.isPending || session.data) {
+    return (
+      <ContentState kind="loading" title="Verificando sua sessÃ£o">
+        <p>Aguarde para acessar seu espaÃ§o.</p>
+      </ContentState>
+    );
+  }
+
+  return (
+    <div className={styles.wrapper}>
+      <div className={styles.card}>
+        <div className={styles.header}>
+          <p className={ui.eyebrow}>
+            {isRegister ? "Comece pelo seu acesso" : "Seu espaÃ§o de cuidado"}
+          </p>
+          <h1>{isRegister ? "Criar sua conta" : "Que bom ter vocÃª aqui."}</h1>
+          <p className={styles.intro}>
+            {isRegister
+              ? "Preencha seus dados e selecione seu perfil para iniciar no Ctrl X."
+              : "Entre com suas credenciais para acompanhar seu histÃ³rico."}
+          </p>
+        </div>
+
+        {params.get("registered") && (
+          <p className={styles.statusBanner} role="status">
+            Cadastro concluÃ­do com sucesso. Entre abaixo para acessar sua conta.
+          </p>
+        )}
+
+        {params.get("expired") && (
+          <p className={styles.statusBanner} role="status">
+            Sua sessÃ£o expirou ou vocÃª ainda nÃ£o entrou. Entre novamente.
+          </p>
+        )}
+
+        {message && (
+          <p className={styles.errorBanner} role="alert">
+            {message}
+          </p>
+        )}
+
+        <form
+          className={styles.form}
+          onSubmit={handleSubmit(submit)}
+          noValidate
+          aria-busy={isSubmitting}
+        >
+          {isRegister && (
+            <>
+              <div className={styles.field}>
+                <span className={styles.label}>Como vocÃª vai usar o Ctrl X?</span>
+                <input type="hidden" {...register("role")} />
+                <div
+                  className={styles.roleGrid}
+                  role="radiogroup"
+                  aria-label="Perfil de acesso"
+                >
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked={selectedRole === "PATIENT"}
+                    className={[
+                      styles.roleOption,
+                      selectedRole === "PATIENT" ? styles.roleActive : "",
+                    ].join(" ")}
+                    onClick={() =>
+                      setValue("role", "PATIENT", { shouldValidate: true })
+                    }
+                  >
+                    <span className={styles.roleTitle}>Sou Paciente</span>
+                    <span className={styles.roleDesc}>
+                      Registrar dor e acompanhar exercÃ­cios
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked={selectedRole === "PROFESSIONAL"}
+                    className={[
+                      styles.roleOption,
+                      selectedRole === "PROFESSIONAL" ? styles.roleActive : "",
+                    ].join(" ")}
+                    onClick={() =>
+                      setValue("role", "PROFESSIONAL", { shouldValidate: true })
+                    }
+                  >
+                    <span className={styles.roleTitle}>Sou Fisioterapeuta</span>
+                    <span className={styles.roleDesc}>
+                      Acompanhar pacientes e prescriÃ§Ãµes
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              <div className={styles.field}>
+                <label className={styles.label} htmlFor="full_name">
+                  Nome completo
+                </label>
+                <input
+                  id="full_name"
+                  placeholder="Ex: Maria Clara Santos"
+                  autoComplete="name"
+                  aria-invalid={!!errors.full_name}
+                  aria-describedby="name-error"
+                  {...register("full_name")}
+                />
+                <span className={styles.errorText} id="name-error">
+                  {errors.full_name?.message}
+                </span>
+              </div>
+
+              {professional && (
+                <div className={styles.professionalBox}>
+                  <p className={styles.boxTitle}>Registro Profissional</p>
+                  <div className={styles.crefitoGrid}>
+                    <div className={styles.field}>
+                      <label
+                        className={styles.label}
+                        htmlFor="register-crefito-region"
+                      >
+                        RegiÃ£o CREFITO
+                      </label>
+                      <input
+                        id="register-crefito-region"
+                        type="number"
+                        placeholder="Ex: 3"
+                        min={1}
+                        max={22}
+                        required
+                        aria-invalid={!!errors.crefito_region}
+                        aria-describedby="register-region-error"
+                        {...register("crefito_region", {
+                          setValueAs: (value: string) =>
+                            value === "" ? undefined : Number(value),
+                        })}
+                      />
+                      <span
+                        className={styles.errorText}
+                        id="register-region-error"
+                      >
+                        {errors.crefito_region?.message}
+                      </span>
+                    </div>
+
+                    <div className={styles.field}>
+                      <label
+                        className={styles.label}
+                        htmlFor="register-crefito-number"
+                      >
+                        NÃºmero CREFITO
+                      </label>
+                      <input
+                        id="register-crefito-number"
+                        placeholder="12345-F"
+                        maxLength={20}
+                        required
+                        aria-invalid={!!errors.crefito_number}
+                        aria-describedby="register-number-error register-verification-hint"
+                        {...register("crefito_number")}
+                      />
+                      <span
+                        className={styles.errorText}
+                        id="register-number-error"
+                      >
+                        {errors.crefito_number?.message}
+                      </span>
+                    </div>
+                  </div>
+                  <p id="register-verification-hint" className={styles.hint}>
+                    O registro serÃ¡ enviado ao serviÃ§o. O acesso profissional
+                    depende da verificaÃ§Ã£o.
+                  </p>
+                </div>
+              )}
+            </>
+          )}
+
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor="email">
+              E-mail
+            </label>
+            <input
+              id="email"
+              type="email"
+              placeholder="voce@exemplo.com"
+              autoComplete="email"
+              aria-invalid={!!errors.email}
+              aria-describedby="email-error"
+              {...register("email")}
+            />
+            <span className={styles.errorText} id="email-error">
+              {errors.email?.message}
+            </span>
+          </div>
+
+          <div className={styles.field}>
+            <div className={styles.labelRow}>
+              <label className={styles.label} htmlFor="password">
+                Senha
+              </label>
+              <button
+                type="button"
+                className={styles.togglePassword}
+                onClick={() => setShowPassword((prev) => !prev)}
+              >
+                {showPassword ? "Ocultar" : "Mostrar"}
+              </button>
+            </div>
+            <input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              placeholder={
+                isRegister ? "MÃ­nimo de 12 caracteres" : "Digite sua senha"
+              }
+              autoComplete={isRegister ? "new-password" : "current-password"}
+              aria-invalid={!!errors.password}
+              aria-describedby={
+                isRegister ? "password-hint password-error" : "password-error"
+              }
+              {...register("password")}
+            />
+            <span className={styles.errorText} id="password-error">
+              {errors.password?.message}
+            </span>
+            {isRegister && (
+              <p id="password-hint" className={styles.hint}>
+                Use entre 12 e 128 caracteres para proteger seus dados clÃ­nicos.
+              </p>
+            )}
+          </div>
+
+          {isRegister && (
+            <div className={styles.field}>
+              <label className={styles.label} htmlFor="confirmation">
+                Confirme a senha
+              </label>
+              <input
+                id="confirmation"
+                type={showPassword ? "text" : "password"}
+                placeholder="Repita a senha escolhida"
+                autoComplete="new-password"
+                aria-invalid={!!errors.confirmation}
+                aria-describedby="confirmation-error"
+                {...register("confirmation")}
+              />
+              <span className={styles.errorText} id="confirmation-error">
+                {errors.confirmation?.message}
+              </span>
+            </div>
+          )}
+
+          <Button className={styles.submitButton} disabled={isSubmitting}>
+            {isSubmitting
+              ? "Aguardeâ€¦"
+              : isRegister
+                ? "Criar minha conta"
+                : "Entrar no meu espaÃ§o"}
+          </Button>
+        </form>
+
+        <div className={styles.footerSwitch}>
+          <span>
+            {isRegister ? "JÃ¡ possui uma conta?" : "Ainda nÃ£o tem cadastro?"}
+          </span>
+          <Link href={isRegister ? "/login" : "/register"}>
+            {isRegister ? "Entrar agora" : "Criar conta gratuita"}
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+=== src\features\auth\logout-button.tsx ===
+"use client";
+
+import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { logout } from "./auth";
+
+export function LogoutButton() {
+  const client = useQueryClient();
+  const [pending, setPending] = useState(false);
+  const [failed, setFailed] = useState(false);
+
+  async function signOut() {
+    setPending(true);
+    setFailed(false);
+    try {
+      await logout();
+      await client.cancelQueries();
+      client.clear();
+      // A full navigation also discards drafts and in-memory component state.
+      window.location.replace("/login");
+    } catch {
+      setFailed(true);
+      setPending(false);
+    }
+  }
+
+  return (
+    <div>
+      <Button type="button" variant="secondary" disabled={pending} onClick={() => void signOut()}>
+        {pending ? "Saindoâ€¦" : "Sair da conta"}
+      </Button>
+      {failed && <p role="alert">NÃ£o foi possÃ­vel sair da conta. Confira sua conexÃ£o e tente novamente.</p>}
+    </div>
+  );
+}
+
+=== src\features\care\care-area.tsx ===
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { authRequest, type User } from "@/features/auth/auth";
+import { CareError, CareLoading, isExpired } from "./states";
+import { ApiError } from "@/services/api-client";
+import styles from "./care.module.css";
+import ui from "@/components/ui/ui.module.css";
+
+const CareContext = createContext<{
+  user: User;
+  expire: (error: unknown) => void;
+} | null>(null);
+
+export function useCare() {
+  const context = useContext(CareContext);
+  if (!context) throw new Error("Ãrea autenticada necessÃ¡ria.");
+  return context;
+}
+
+export function useSessionError(error: unknown) {
+  const { expire } = useCare();
+  useEffect(() => {
+    if (isExpired(error)) expire(error);
+  }, [error, expire]);
+}
+
+export function CareArea({
+  role,
+  title,
+  description,
+  children,
+}: {
+  role: User["role"];
+  title: string;
+  description: string;
+  children?: ReactNode;
+}) {
+  const pathname = usePathname();
+  const client = useQueryClient();
+  const [expired, setExpired] = useState<unknown>(null);
+  const session = useQuery({
+    queryKey: ["care-session"],
+    queryFn: () => authRequest("me"),
+    gcTime: 0,
+    staleTime: 0,
+    retry: false,
+    refetchInterval: 60_000,
+  });
+  const error = expired || session.error;
+  useEffect(() => {
+    if (isExpired(error)) {
+      void client
+        .cancelQueries({ queryKey: ["care"] })
+        .then(() => client.removeQueries({ queryKey: ["care"] }));
+      client.removeQueries({ queryKey: ["auth"] });
+    }
+  }, [client, error]);
+  if (error)
+    return (
+      <CareError
+        error={error}
+        retry={() => {
+          setExpired(null);
+          void session.refetch();
+        }}
+        fetching={session.isFetching}
+      />
+    );
+  if (session.isPending) return <CareLoading title="Verificando sua sessÃ£o" />;
+  if (session.data.role !== role)
+    return <CareError error={new ApiError(403)} />;
+  const root = role === "PATIENT" ? "/patient" : "/professional";
+  const relations = role === "PATIENT" ? "physiotherapist" : "patients";
+  return (
+    <CareContext.Provider value={{ user: session.data, expire: setExpired }}>
+      <div className={styles.page}>
+        <nav className={styles.nav} aria-label="Seu espaÃ§o">
+          <Link href={`${root}/dashboard`}>Meu espaÃ§o</Link>
+          <Link
+            href={`${root}/profile`}
+            aria-current={pathname === `${root}/profile` ? "page" : undefined}
+          >
+            Meu perfil
+          </Link>
+          <Link
+            href={`${root}/${relations}`}
+            aria-current={
+              pathname.startsWith(`${root}/${relations}`) ? "page" : undefined
+            }
+          >
+            {role === "PATIENT" ? "Meu fisioterapeuta" : "Meus pacientes"}
+          </Link>
+        </nav>
+        <header className={styles.heading}>
+          <p className={ui.eyebrow}>
+            {role === "PATIENT" ? "Ãrea do paciente" : "Ãrea do fisioterapeuta"}
+          </p>
+          <h1>{title}</h1>
+          <p>{description}</p>
+        </header>
+        {children}
+      </div>
+    </CareContext.Provider>
+  );
+}
+
+=== src\features\care\care.module.css ===
+.page {
+  max-width: 64rem;
+  margin-inline: auto;
+}
+.heading {
+  margin-bottom: var(--space-4);
+}
+.heading h1 {
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-weight: 650;
+  margin: 0.5rem 0 0.75rem;
+}
+.heading p {
+  color: var(--color-muted);
+  margin: 0;
+  max-width: 40rem;
+}
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-bottom: var(--space-4);
+}
+.nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-control);
+  text-decoration: none;
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+.nav a[aria-current],
+.nav a:hover {
+  background: var(--color-primary-soft);
+}
+.columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 18rem;
+  gap: var(--space-4);
+  align-items: start;
+}
+.surface {
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-surface);
+  padding: var(--space-4);
+  min-width: 0;
+}
+.surface h2,
+.aside h2 {
+  font-size: 1.25rem;
+  margin: 0 0 1rem;
+}
+.surface h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+.surface > p {
+  color: var(--color-muted);
+}
+.aside {
+  padding-block: var(--space-2);
+  color: var(--color-muted);
+}
+.aside p {
+  font-size: 0.9375rem;
+}
+.form {
+  display: grid;
+  gap: var(--space-3);
+}
+.field {
+  display: grid;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.field label {
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+.field input {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--color-input);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  color: var(--color-text);
+}
+.field input[aria-invalid="true"] {
+  border-color: var(--color-error);
+}
+.field input:disabled {
+  opacity: 0.7;
+}
+.field small,
+.muted {
+  font-size: 0.875rem;
+  color: var(--color-muted);
+}
+.fieldError {
+  font-size: 0.875rem;
+  color: var(--color-error);
+}
+.pair {
+  display: grid;
+  grid-template-columns: 8rem minmax(0, 1fr);
+  gap: var(--space-2);
+}
+.fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.fieldset legend {
+  font-weight: 600;
+  margin-bottom: var(--space-2);
+}
+.facts {
+  margin: 0;
+}
+.facts dt {
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+  margin-top: 1.5rem;
+}
+.facts dt:first-child {
+  margin-top: 0;
+}
+.facts dd {
+  margin: 0.25rem 0 0;
+  overflow-wrap: anywhere;
+}
+.code {
+  display: block;
+  overflow-wrap: anywhere;
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  user-select: all;
+}
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  padding: 0.375rem 0.75rem;
+  border-radius: var(--radius-control);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+.verification {
+  margin-top: var(--space-3);
+}
+.neutral {
+  color: var(--color-muted);
+  background: var(--color-input);
+}
+.feedback {
+  padding: 1rem;
+  margin: 0 0 1.5rem;
+  border-radius: var(--radius-control);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+.error {
+  background: var(--color-error-soft);
+  color: var(--color-error);
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  align-items: center;
+}
+.danger {
+  color: var(--color-error);
+}
+.danger:hover {
+  color: var(--color-error);
+  background: var(--color-error-soft);
+}
+.stack {
+  display: grid;
+  gap: var(--space-3);
+}
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding-block: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+.row:first-child {
+  padding-top: 0;
+}
+.row:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+.row > div {
+  min-width: 0;
+}
+.row p {
+  margin: 0.5rem 0;
+}
+.row h3 {
+  margin: 0.5rem 0;
+}
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.sectionHeader h2 {
+  margin: 0;
+}
+.sectionHeader button {
+  font-size: 0.875rem;
+}
+.skeleton {
+  height: 1rem;
+  background: var(--color-border);
+  border-radius: 0.25rem;
+  margin-block: 1.5rem;
+  max-width: 80%;
+}
+.skeleton:last-child {
+  max-width: 55%;
+}
+.logoutRow {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: var(--space-3);
+}
+.logoutRow p {
+  color: var(--color-error);
+  max-width: 28rem;
+}
+.dialog {
+  max-width: min(30rem, calc(100% - 2rem));
+  border: 0;
+  border-radius: var(--radius-card);
+  padding: var(--space-4);
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-surface);
+}
+.dialog::backdrop {
+  background: rgb(10 30 25 / 45%);
+}
+.dialog h2 {
+  margin: 0 0 1rem;
+  font-size: 1.5rem;
+}
+.dialog p {
+  margin-bottom: 1.5rem;
+  color: var(--color-muted);
+}
+@media (max-width: 800px) {
+  .columns {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3);
+  }
+  .aside {
+    padding: 0;
+  }
+}
+@media (max-width: 480px) {
+  .surface {
+    padding: var(--space-3);
+  }
+  .pair {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .actions > button {
+    width: 100%;
+  }
+  .nav {
+    gap: 0;
+  }
+  .nav a {
+    padding-inline: 0.75rem;
+    font-size: 0.875rem;
+  }
+}
+
+=== src\features\care\confirm-end-link.tsx ===
+"use client";
+
+import { useEffect, useRef } from "react";
+import { Button } from "@/components/ui/button";
+import { Feedback } from "./states";
+import styles from "./care.module.css";
+
+export function ConfirmEndLink({
+  pending,
+  error,
+  onConfirm,
+  onCancel,
+}: {
+  pending: boolean;
+  error: unknown;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    const opener = document.activeElement;
+    const element = dialog.current;
+    element?.showModal();
+    return () => {
+      element?.close();
+      if (opener instanceof HTMLElement) opener.focus();
+    };
+  }, []);
+  return (
+    <dialog
+      ref={dialog}
+      className={styles.dialog}
+      aria-labelledby="end-title"
+      aria-describedby="end-description"
+      onCancel={(event) => {
+        if (pending) event.preventDefault();
+        else onCancel();
+      }}
+    >
+      <h2 id="end-title">Encerrar este vÃ­nculo?</h2>
+      <p id="end-description">
+        O fisioterapeuta perderÃ¡ o acesso aos dados autorizados por este
+        vÃ­nculo. Para retomar o acompanhamento, serÃ¡ necessÃ¡rio enviar uma nova
+        solicitaÃ§Ã£o.
+      </p>
+      <Feedback error={error} />
+      <div className={styles.actions}>
+        <Button
+          variant="secondary"
+          disabled={pending}
+          onClick={onCancel}
+          autoFocus
+        >
+          Manter vÃ­nculo
+        </Button>
+        <Button disabled={pending} onClick={onConfirm}>
+          {pending ? "Encerrandoâ€¦" : "Confirmar encerramento"}
+        </Button>
+      </div>
+    </dialog>
+  );
+}
+
+=== src\features\care\patient-identification.tsx ===
+"use client";
+
+import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
+import { getPatient } from "@/services/care";
+import { useCare, useSessionError } from "./care-area";
+import { CareError, CareLoading } from "./states";
+import styles from "./care.module.css";
+
+export function PatientIdentification({ patientId }: { patientId: string }) {
+  const { user } = useCare();
+  const query = useQuery({
+    queryKey: ["care", user.id, "patient", patientId],
+    queryFn: ({ signal }) => getPatient(patientId, signal),
+    gcTime: 0,
+    staleTime: 0,
+    refetchInterval: 30_000,
+  });
+  useSessionError(query.error);
+  if (query.isError)
+    return (
+      <CareError
+        error={query.error}
+        retry={() => void query.refetch()}
+        fetching={query.isFetching}
+      />
+    );
+  if (query.isPending)
+    return <CareLoading title="Confirmando acesso ao paciente" />;
+  return (
+    <section className={styles.surface}>
+      <h2>{query.data.full_name}</h2>
+      <dl className={styles.facts}>
+        <dt>CÃ³digo do paciente</dt>
+        <dd>
+          <code className={styles.code}>{query.data.id}</code>
+        </dd>
+      </dl>
+      <p className={styles.muted}>
+        IdentificaÃ§Ã£o disponibilizada pelo serviÃ§o para o acompanhamento
+        individual.
+      </p>
+      <Link href="/professional/patients">Voltar para meus pacientes</Link>
+    </section>
+  );
+}
+
+=== src\features\care\profile.tsx ===
+"use client";
+
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { LogoutButton } from "@/features/auth/logout-button";
+import { getProfile, updateProfile } from "@/services/care";
+import { ApiError } from "@/services/api-client";
+import {
+  profileFormSchema,
+  type Profile,
+  type ProfileValues,
+} from "@/types/care";
+import { useCare, useSessionError } from "./care-area";
+import { CareError, CareLoading, Feedback } from "./states";
+import styles from "./care.module.css";
+
+export function VerificationStatus({
+  profile,
+}: {
+  profile: Extract<Profile, { role: "PROFESSIONAL" }>;
+}) {
+  return (
+    <>
+      <span
+        className={`${styles.status} ${profile.verification_status === "unverified" ? styles.neutral : ""}`}
+      >
+        {profile.verification_status === "verified"
+          ? "Verificado pelo serviÃ§o"
+          : "NÃ£o verificado"}
+      </span>
+      <p className={styles.muted}>
+        {profile.verification_status === "verified"
+          ? "Status informado pelo serviÃ§o responsÃ¡vel pela verificaÃ§Ã£o profissional."
+          : "Seu registro ainda nÃ£o foi verificado pelo serviÃ§o. O acesso aos pacientes depende dessa verificaÃ§Ã£o."}
+      </p>
+    </>
+  );
+}
+
+export function ProfileFacts({
+  profile,
+  email,
+}: {
+  profile: Profile;
+  email: string;
+}) {
+  return (
+    <dl className={styles.facts}>
+      <dt>E-mail da conta</dt>
+      <dd>{email}</dd>
+      <dt>Perfil de acesso</dt>
+      <dd>{profile.role === "PATIENT" ? "Paciente" : "Fisioterapeuta"}</dd>
+      {profile.role === "PROFESSIONAL" && (
+        <>
+          <dt>CÃ³digo para vÃ­nculo</dt>
+          <dd>
+            <code className={styles.code}>{profile.id}</code>
+            <p className={styles.muted}>
+              Compartilhe este cÃ³digo com o paciente para receber uma
+              solicitaÃ§Ã£o.
+            </p>
+          </dd>
+          <dt>CREFITO cadastrado</dt>
+          <dd>
+            {profile.crefito_region && profile.crefito_number
+              ? `CREFITO-${profile.crefito_region} Â· ${profile.crefito_number}`
+              : "Registro nÃ£o informado"}
+          </dd>
+        </>
+      )}
+    </dl>
+  );
+}
+
+function defaults(profile: Profile): ProfileValues {
+  if (profile.role === "PROFESSIONAL")
+    return {
+      role: profile.role,
+      full_name: profile.full_name,
+      crefito_region: profile.crefito_region ?? Number.NaN,
+      crefito_number: profile.crefito_number ?? "",
+    };
+  return { role: profile.role, full_name: profile.full_name };
+}
+
+export function ProfileEditor({ profile }: { profile: Profile }) {
+  const { user } = useCare();
+  const client = useQueryClient();
+  const [saved, setSaved] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isDirty },
+  } = useForm<ProfileValues>({
+    resolver: zodResolver(profileFormSchema),
+    defaultValues: defaults(profile),
+  });
+  const mutation = useMutation({
+    mutationFn: (values: ProfileValues) => updateProfile(profile, values),
+    onSuccess: async (updated) => {
+      reset(defaults(updated));
+      client.setQueryData(["care", user.id, "profile"], updated);
+      await client.cancelQueries({ queryKey: ["care", user.id, "patient"] });
+      client.removeQueries({ queryKey: ["care", user.id, "patient"] });
+      client.removeQueries({ queryKey: ["care", user.id, "patients"] });
+      setSaved(true);
+    },
+  });
+  useSessionError(mutation.error);
+  const professionalErrors = errors as {
+    crefito_region?: { message?: string };
+    crefito_number?: { message?: string };
+  };
+  return (
+    <form
+      className={styles.form}
+      onSubmit={handleSubmit((values) => {
+        setSaved(false);
+        mutation.mutate(values);
+      })}
+      onChange={() => setSaved(false)}
+      noValidate
+      aria-busy={mutation.isPending}
+    >
+      <h2>Dados do perfil</h2>
+      <Feedback
+        error={mutation.error}
+        message={saved ? "Perfil atualizado com sucesso." : undefined}
+      />
+      <div className={styles.field}>
+        <label htmlFor="full-name">Nome completo</label>
+        <input
+          id="full-name"
+          autoComplete="name"
+          maxLength={200}
+          required
+          disabled={mutation.isPending}
+          aria-invalid={!!errors.full_name}
+          aria-describedby="full-name-error"
+          {...register("full_name")}
+        />
+        <span className={styles.fieldError} id="full-name-error">
+          {errors.full_name?.message}
+        </span>
+      </div>
+      {profile.role === "PROFESSIONAL" && (
+        <fieldset className={styles.fieldset} disabled={mutation.isPending}>
+          <legend>Registro de fisioterapeuta</legend>
+          <div className={styles.pair}>
+            <div className={styles.field}>
+              <label htmlFor="crefito-region">RegiÃ£o</label>
+              <input
+                id="crefito-region"
+                type="number"
+                min={1}
+                max={22}
+                inputMode="numeric"
+                required
+                aria-invalid={!!professionalErrors.crefito_region}
+                aria-describedby="region-error"
+                {...register("crefito_region", { valueAsNumber: true })}
+              />
+              <span id="region-error" className={styles.fieldError}>
+                {professionalErrors.crefito_region?.message}
+              </span>
+            </div>
+            <div className={styles.field}>
+              <label htmlFor="crefito-number">NÃºmero do CREFITO</label>
+              <input
+                id="crefito-number"
+                maxLength={20}
+                required
+                placeholder="12345-F"
+                aria-invalid={!!professionalErrors.crefito_number}
+                aria-describedby="number-hint number-error"
+                {...register("crefito_number")}
+              />
+              <small id="number-hint">
+                NÃºmero de registro de fisioterapeuta, com sufixo -F.
+              </small>
+              <span id="number-error" className={styles.fieldError}>
+                {professionalErrors.crefito_number?.message}
+              </span>
+            </div>
+          </div>
+          <p className={styles.muted}>
+            AlteraÃ§Ãµes no nome ou no CREFITO podem exigir nova verificaÃ§Ã£o pelo
+            serviÃ§o.
+          </p>
+        </fieldset>
+      )}
+      <div className={styles.actions}>
+        <Button disabled={mutation.isPending || !isDirty}>
+          {mutation.isPending ? "Salvandoâ€¦" : "Salvar alteraÃ§Ãµes"}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+export function ProfilePage() {
+  return (
+    <>
+      <div className={styles.logoutRow}><LogoutButton /></div>
+      <ProfileContent />
+    </>
+  );
+}
+
+function ProfileContent() {
+  const { user } = useCare();
+  const query = useQuery({
+    queryKey: ["care", user.id, "profile"],
+    queryFn: ({ signal }) => getProfile(user.id, user.role, signal),
+    gcTime: 0,
+  });
+  useSessionError(query.error);
+  const canKeepDraft =
+    query.data &&
+    (query.error instanceof TypeError ||
+      (query.error instanceof ApiError && query.error.status >= 500));
+  if (query.isError && !canKeepDraft)
+    return (
+      <CareError
+        error={query.error}
+        retry={() => void query.refetch()}
+        fetching={query.isFetching}
+      />
+    );
+  if (!query.data) return <CareLoading />;
+  return (
+    <div className={styles.columns}>
+      <section className={styles.surface}>
+        {query.isError && (
+          <>
+            <Feedback error={query.error} />
+            <Button
+              variant="secondary"
+              disabled={query.isFetching}
+              onClick={() => void query.refetch()}
+            >
+              Atualizar perfil
+            </Button>
+          </>
+        )}
+        <ProfileEditor key={query.data.id} profile={query.data} />
+      </section>
+      <aside className={styles.aside} aria-label="InformaÃ§Ãµes da conta">
+        <h2>Sua identificaÃ§Ã£o</h2>
+        <ProfileFacts profile={query.data} email={user.email} />
+        {query.data.role === "PROFESSIONAL" && (
+          <div className={styles.verification}>
+            <VerificationStatus profile={query.data} />
+          </div>
+        )}
+        <p className={styles.muted}>
+          E-mail e perfil de acesso sÃ£o definidos pela conta e aparecem aqui
+          para consulta.
+        </p>
+      </aside>
+    </div>
+  );
+}
+
+=== src\features\care\relationships.tsx ===
+"use client";
+
+import Link from "next/link";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { ContentState } from "@/components/ui/content-state";
+import { ApiError } from "@/services/api-client";
+import {
+  getAllLinks,
+  getPatients,
+  getProfile,
+  requestLink,
+  transitionLink,
+} from "@/services/care";
+import {
+  linkRequestSchema,
+  linkStatusLabels,
+  type CareLink,
+} from "@/types/care";
+import { useCare, useSessionError } from "./care-area";
+import { ConfirmEndLink } from "./confirm-end-link";
+import { CareError, CareLoading, Feedback } from "./states";
+import styles from "./care.module.css";
+
+export function LinkStatus({ status }: { status: CareLink["status"] }) {
+  return (
+    <span
+      className={`${styles.status} ${status !== "active" ? styles.neutral : ""}`}
+    >
+      {linkStatusLabels[status]}
+    </span>
+  );
+}
+
+function linkDate(link: CareLink) {
+  return new Intl.DateTimeFormat("pt-BR", {
+    dateStyle: "medium",
+    timeZone: "America/Sao_Paulo",
+  }).format(new Date(link.created_at));
+}
+
+export function LinkIdentity({
+  link,
+  patient,
+}: {
+  link: CareLink;
+  patient: boolean;
+}) {
+  return (
+    <div>
+      <LinkStatus status={link.status} />
+      <p className={styles.muted}>
+        {patient ? "CÃ³digo do fisioterapeuta" : "CÃ³digo do paciente"}
+      </p>
+      <code className={styles.code}>
+        {patient ? link.professional_id : link.patient_id}
+      </code>
+      <p className={styles.muted}>
+        Solicitado em {linkDate(link)}
+        {link.status === "active" ? " Â· SolicitaÃ§Ã£o aceita" : ""}
+      </p>
+    </div>
+  );
+}
+
+export function RequestLinkForm({
+  disabled,
+  pending,
+  onSubmit,
+}: {
+  disabled: boolean;
+  pending: boolean;
+  onSubmit: (professionalId: string) => Promise<boolean>;
+}) {
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<{ professional_id: string }>({
+    resolver: zodResolver(linkRequestSchema),
+    defaultValues: { professional_id: "" },
+  });
+  return (
+    <form
+      className={styles.form}
+      noValidate
+      aria-busy={pending}
+      onSubmit={handleSubmit(async (values) => {
+        if (await onSubmit(values.professional_id)) reset();
+      })}
+    >
+      <div className={styles.field}>
+        <label htmlFor="professional-id">CÃ³digo do fisioterapeuta</label>
+        <input
+          id="professional-id"
+          autoComplete="off"
+          spellCheck={false}
+          placeholder="Cole o cÃ³digo recebido"
+          disabled={disabled || pending}
+          required
+          aria-invalid={!!errors.professional_id}
+          aria-describedby="professional-hint professional-error"
+          {...register("professional_id")}
+        />
+        <small id="professional-hint">
+          PeÃ§a ao fisioterapeuta o cÃ³digo disponÃ­vel no perfil dele.
+        </small>
+        <span className={styles.fieldError} id="professional-error">
+          {errors.professional_id?.message}
+        </span>
+      </div>
+      <div className={styles.actions}>
+        <Button disabled={disabled || pending}>
+          {pending ? "Enviandoâ€¦" : "Solicitar vÃ­nculo"}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+export function PatientsList() {
+  const { user } = useCare();
+  const query = useInfiniteQuery({
+    queryKey: ["care", user.id, "patients"],
+    initialPageParam: undefined as string | undefined,
+    queryFn: ({ pageParam, signal }) => getPatients(pageParam, signal),
+    getNextPageParam: (page) => page.next_cursor ?? undefined,
+    gcTime: 0,
+    refetchInterval: 30_000,
+  });
+  useSessionError(query.error);
+  if (query.isError)
+    return (
+      <CareError
+        error={query.error}
+        retry={() => void query.refetch()}
+        fetching={query.isFetching}
+      />
+    );
+  if (query.isPending)
+    return <CareLoading title="Carregando pacientes vinculados" />;
+  const patients = [
+    ...new Map(
+      query.data.pages
+        .flatMap((page) => page.items)
+        .map((patient) => [patient.id, patient]),
+    ).values(),
+  ];
+  return (
+    <section className={styles.surface} aria-labelledby="patients-title">
+      <div className={styles.sectionHeader}>
+        <h2 id="patients-title">Pacientes com vÃ­nculo ativo</h2>
+        <Button
+          variant="secondary"
+          disabled={query.isFetching}
+          onClick={() => void query.refetch()}
+        >
+          Atualizar pacientes
+        </Button>
+      </div>
+      {patients.length ? (
+        <ul className={styles.list}>
+          {patients.map((patient) => (
+            <li className={styles.row} key={patient.id}>
+              <div>
+                <h3>{patient.full_name}</h3>
+                <p className={styles.muted}>Paciente vinculado</p>
+              </div>
+              <Link href={`/professional/patients/${patient.id}`}>
+                Ver identificaÃ§Ã£o
+                <span className={styles.muted}> de {patient.full_name}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className={styles.muted}>
+          Nenhum paciente vinculado. Ao aceitar uma solicitaÃ§Ã£o, o paciente
+          aparecerÃ¡ aqui.
+        </p>
+      )}
+      {query.hasNextPage && (
+        <Button
+          variant="secondary"
+          disabled={query.isFetching}
+          onClick={() => void query.fetchNextPage()}
+        >
+          {query.isFetchingNextPage ? "Carregandoâ€¦" : "Carregar mais pacientes"}
+        </Button>
+      )}
+    </section>
+  );
+}
+
+type LinkAction = { id: string; action: "accept" | "reject" | "revoke" };
+
+export function RelationshipsPage() {
+  const { user } = useCare();
+  const patient = user.role === "PATIENT";
+  const client = useQueryClient();
+  const [notice, setNotice] = useState("");
+  const [ending, setEnding] = useState<string | null>(null);
+  const profile = useQuery({
+    queryKey: ["care", user.id, "profile"],
+    queryFn: ({ signal }) => getProfile(user.id, user.role, signal),
+    gcTime: 0,
+  });
+  const links = useQuery({
+    queryKey: ["care", user.id, "links"],
+    queryFn: async ({ signal }) => {
+      const items = await getAllLinks(signal);
+      const identity = profile.data?.id;
+      if (
+        !identity ||
+        items.some(
+          (link) =>
+            (patient ? link.patient_id : link.professional_id) !== identity,
+        )
+      )
+        throw new ApiError(403);
+      return items;
+    },
+    enabled: !!profile.data && !profile.isError,
+    gcTime: 0,
+    refetchInterval: 30_000,
+  });
+
+  async function refreshRelationships() {
+    await client.cancelQueries({ queryKey: ["care", user.id, "patient"] });
+    client.removeQueries({ queryKey: ["care", user.id, "patient"] });
+    // Clear names from prior authorization before loading the current patient list.
+    await client.cancelQueries({ queryKey: ["care", user.id, "patients"] });
+    client.removeQueries({ queryKey: ["care", user.id, "patients"] });
+    await client.invalidateQueries({ queryKey: ["care", user.id, "links"] });
+  }
+
+  const action = useMutation({
+    mutationFn: ({ id, action }: LinkAction) => transitionLink(id, action),
+    onSuccess: async (_data, variables) => {
+      setEnding(null);
+      setNotice(
+        variables.action === "accept"
+          ? "SolicitaÃ§Ã£o aceita. O vÃ­nculo estÃ¡ ativo."
+          : variables.action === "reject"
+            ? "SolicitaÃ§Ã£o recusada."
+            : "VÃ­nculo ou solicitaÃ§Ã£o encerrado pelo serviÃ§o.",
+      );
+      await refreshRelationships();
+    },
+    onError: async (error) => {
+      setNotice("");
+      if (error instanceof ApiError && [403, 404, 409].includes(error.status))
+        await refreshRelationships();
+    },
+  });
+  const request = useMutation({
+    mutationFn: requestLink,
+    onSuccess: async () => {
+      setNotice("SolicitaÃ§Ã£o enviada. Aguarde a resposta do fisioterapeuta.");
+      await refreshRelationships();
+    },
+    onError: async (error) => {
+      setNotice("");
+      if (error instanceof ApiError && error.status === 409)
+        await refreshRelationships();
+    },
+  });
+  useSessionError(
+    profile.error || links.error || action.error || request.error,
+  );
+  if (profile.isError || links.isError)
+    return (
+      <CareError
+        error={profile.error || links.error}
+        retry={() => {
+          void profile.refetch();
+          void links.refetch();
+        }}
+        fetching={profile.isFetching || links.isFetching}
+      />
+    );
+  if (profile.isPending || links.isPending)
+    return <CareLoading title="Carregando seus vÃ­nculos" />;
+  const verified =
+    profile.data.role === "PROFESSIONAL" &&
+    profile.data.verification_status === "verified";
+  const active = links.data.filter((link) => link.status === "active");
+  const pending = links.data.filter((link) => link.status === "pending");
+  const history = links.data
+    .filter((link) => !["active", "pending"].includes(link.status))
+    .sort((a, b) => b.created_at.localeCompare(a.created_at));
+  const busy = action.isPending || request.isPending || links.isFetching;
+  function transition(id: string, nextAction: LinkAction["action"]) {
+    setNotice("");
+    request.reset();
+    action.reset();
+    action.mutate({ id, action: nextAction });
+  }
+  return (
+    <div className={styles.stack}>
+      <Feedback
+        error={!ending ? action.error || request.error : undefined}
+        message={notice}
+      />
+      {patient && (
+        <div className={styles.columns}>
+          <section
+            className={styles.surface}
+            aria-labelledby="current-link-title"
+          >
+            <div className={styles.sectionHeader}>
+              <h2 id="current-link-title">Seu acompanhamento</h2>
+              <Button
+                variant="secondary"
+                disabled={busy}
+                onClick={() => void links.refetch()}
+              >
+                Atualizar vÃ­nculos
+              </Button>
+            </div>
+            {active.length ? (
+              <>
+                <LinkIdentity link={active[0]} patient />
+                <div className={styles.actions}>
+                  <Button
+                    variant="secondary"
+                    className={styles.danger}
+                    disabled={busy}
+                    onClick={() => {
+                      action.reset();
+                      setEnding(active[0].id);
+                    }}
+                  >
+                    Encerrar vÃ­nculo
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <>
+                <h3>VocÃª ainda nÃ£o tem um vÃ­nculo ativo</h3>
+                <p>
+                  Conecte-se ao fisioterapeuta que acompanha vocÃª. O vÃ­nculo
+                  comeÃ§a apÃ³s o aceite da solicitaÃ§Ã£o.
+                </p>
+              </>
+            )}
+          </section>
+          <aside className={styles.aside}>
+            <h2>VocÃª decide com quem se conectar</h2>
+            <p>
+              O pedido pendente aguarda uma resposta. VocÃª pode cancelÃ¡-lo antes
+              do aceite.
+            </p>
+            <p>
+              Para trocar de fisioterapeuta, encerre primeiro seu vÃ­nculo ativo.
+            </p>
+          </aside>
+        </div>
+      )}
+      {patient && !active.length && (
+        <section className={styles.surface} aria-labelledby="request-title">
+          <h2 id="request-title">Conectar com um fisioterapeuta</h2>
+          <RequestLinkForm
+            disabled={busy}
+            pending={request.isPending}
+            onSubmit={async (id) => {
+              action.reset();
+              setNotice("");
+              try {
+                await request.mutateAsync(id);
+                return true;
+              } catch {
+                return false;
+              }
+            }}
+          />
+        </section>
+      )}
+      {!patient && (
+        <>
+          {verified ? (
+            <PatientsList />
+          ) : (
+            <ContentState title="VerificaÃ§Ã£o profissional necessÃ¡ria">
+              <p>
+                O serviÃ§o informa que seu registro ainda nÃ£o foi verificado.
+                VocÃª pode revisar seu perfil e recusar solicitaÃ§Ãµes. A listagem
+                de pacientes e o aceite dependem da verificaÃ§Ã£o.
+              </p>
+              <Link href="/professional/profile">Revisar meu perfil</Link>
+            </ContentState>
+          )}
+        </>
+      )}
+      <section className={styles.surface} aria-labelledby="requests-title">
+        <div className={styles.sectionHeader}>
+          <h2 id="requests-title">
+            {patient ? "Suas solicitaÃ§Ãµes" : "SolicitaÃ§Ãµes recebidas"}
+          </h2>
+          {!patient && (
+            <Button
+              variant="secondary"
+              disabled={busy}
+              onClick={() => void links.refetch()}
+            >
+              Atualizar solicitaÃ§Ãµes
+            </Button>
+          )}
+        </div>
+        {pending.length ? (
+          <ul className={styles.list}>
+            {pending.map((link) => (
+              <li className={styles.row} key={link.id}>
+                <LinkIdentity link={link} patient />
+                <div className={styles.actions}>
+                  {patient ? (
+                    <Button
+                      variant="secondary"
+                      disabled={busy}
+                      onClick={() => transition(link.id, "revoke")}
+                    >
+                      Cancelar solicitaÃ§Ã£o
+                    </Button>
+                  ) : (
+                    <>
+                      <Button
+                        disabled={busy || !verified}
+                        onClick={() => transition(link.id, "accept")}
+                      >
+                        Aceitar solicitaÃ§Ã£o
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        disabled={busy}
+                        onClick={() => transition(link.id, "reject")}
+                      >
+                        Recusar
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className={styles.muted}>Nenhuma solicitaÃ§Ã£o pendente.</p>
+        )}
+        {!patient && (
+          <p className={styles.muted}>
+            Antes do aceite, o serviÃ§o disponibiliza somente o cÃ³digo do
+            paciente. Confirme esse cÃ³digo com a pessoa que solicitou o vÃ­nculo.
+          </p>
+        )}
+      </section>
+      {!patient && active.length > 0 && (
+        <section className={styles.surface}>
+          <h2>VÃ­nculos ativos</h2>
+          <ul className={styles.list}>
+            {active.map((link) => (
+              <li className={styles.row} key={link.id}>
+                <LinkIdentity link={link} patient={false} />
+                <Button
+                  variant="secondary"
+                  className={styles.danger}
+                  disabled={busy}
+                  onClick={() => {
+                    action.reset();
+                    setEnding(link.id);
+                  }}
+                >
+                  Encerrar vÃ­nculo
+                </Button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+      {history.length > 0 && (
+        <section className={styles.surface}>
+          <h2>HistÃ³rico de vÃ­nculos</h2>
+          <ul className={styles.list}>
+            {history.map((link) => (
+              <li className={styles.row} key={link.id}>
+                <LinkIdentity link={link} patient={patient} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+      {ending && (
+        <ConfirmEndLink
+          pending={action.isPending}
+          error={action.error}
+          onCancel={() => setEnding(null)}
+          onConfirm={() => {
+            setNotice("");
+            action.mutate({ id: ending, action: "revoke" });
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+=== src\features\care\states.tsx ===
+import Link from "next/link";
+import { ApiError } from "@/services/api-client";
+import { AuthError } from "@/features/auth/auth";
+import { Button } from "@/components/ui/button";
+import { ContentState } from "@/components/ui/content-state";
+import styles from "./care.module.css";
+
+export function isExpired(error: unknown) {
+  return (
+    (error instanceof ApiError || error instanceof AuthError) &&
+    error.status === 401
+  );
+}
+
+export function errorMessage(error: unknown) {
+  if (isExpired(error))
+    return "Sua sessÃ£o expirou. Entre novamente para continuar.";
+  if (error instanceof ApiError || error instanceof AuthError) {
+    switch (error.status) {
+      case 403:
+        return "Acesso nÃ£o autorizado. Confira seu perfil e a verificaÃ§Ã£o profissional.";
+      case 404:
+        return "Recurso indisponÃ­vel ou sem permissÃ£o de acesso. Confira os dados e tente novamente.";
+      case 409:
+        return "Os dados ou o vÃ­nculo mudaram ou jÃ¡ estÃ£o em uso. Atualize a pÃ¡gina antes de tentar novamente.";
+      case 422:
+        return "Confira os campos informados. A API nÃ£o aceitou os dados enviados.";
+    }
+  }
+  return "NÃ£o foi possÃ­vel comunicar com o serviÃ§o. Seus dados preenchidos foram preservados. Tente novamente.";
+}
+
+export function Feedback({
+  error,
+  message,
+}: {
+  error?: unknown;
+  message?: string;
+}) {
+  if (error)
+    return (
+      <div className={`${styles.feedback} ${styles.error}`} role="alert">
+        <p>{errorMessage(error)}</p>
+        {error instanceof ApiError && error.detail && (
+          <p>Mensagem do serviÃ§o: {error.detail}</p>
+        )}
+        {isExpired(error) && (
+          <Link href="/login?expired=1">Entrar novamente</Link>
+        )}
+      </div>
+    );
+  if (message)
+    return (
+      <p className={styles.feedback} role="status">
+        {message}
+      </p>
+    );
+  return null;
+}
+
+export function CareLoading({
+  title = "Carregando seus dados",
+}: {
+  title?: string;
+}) {
+  return (
+    <ContentState kind="loading" title={title}>
+      <div aria-hidden="true">
+        <div className={styles.skeleton} />
+        <div className={styles.skeleton} />
+      </div>
+    </ContentState>
+  );
+}
+
+export function CareError({
+  error,
+  retry,
+  fetching = false,
+}: {
+  error: unknown;
+  retry?: () => void;
+  fetching?: boolean;
+}) {
+  return (
+    <ContentState
+      kind="error"
+      title={isExpired(error) ? "Entre novamente" : "NÃ£o foi possÃ­vel carregar"}
+    >
+      <p>{errorMessage(error)}</p>
+      {error instanceof ApiError && error.detail && (
+        <p>Mensagem do serviÃ§o: {error.detail}</p>
+      )}
+      {isExpired(error) ? (
+        <Link href="/login?expired=1">Ir para o login</Link>
+      ) : (
+        retry && (
+          <Button variant="secondary" disabled={fetching} onClick={retry}>
+            {fetching ? "Atualizandoâ€¦" : "Tentar novamente"}
+          </Button>
+        )
+      )}
+    </ContentState>
+  );
+}
+
+=== src\features\system\api-health-url.ts ===
+export function getApiHealthUrl(): URL {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (!apiUrl) throw new Error("EndereÃ§o da API nÃ£o configurado.");
+  return new URL("/health", apiUrl);
+}
+
+=== src\features\system\api-health.module.css ===
+.status { display: flex; align-items: center; flex-wrap: wrap; gap: 1rem; }
+.status p { display: flex; align-items: center; gap: .5rem; color: var(--color-muted); font-size: .875rem; max-width: 24rem; margin: 0; }
+.status p::before { content: ""; flex: 0 0 .5rem; width: .5rem; height: .5rem; border-radius: 50%; background: var(--color-tertiary); }
+.status[data-state="connected"] p { color: var(--color-primary); font-weight: 600; }
+.status[data-state="connected"] p::before { background: var(--color-primary); }
+.status[data-state="error"] p { color: var(--color-error); }
+.status[data-state="error"] p::before { background: var(--color-error); }
+
+=== src\features\system\api-health.tsx ===
+"use client";
+
+import { useQuery } from "@tanstack/react-query";
+import { fetchJson } from "@/services/api-client";
+import { healthSchema } from "@/types/health";
+import { getApiHealthUrl } from "./api-health-url";
+import { checkApiHealth } from "@/services/health";
+        
+export function ApiHealth() {
+  const { isPending, isError, isFetching, refetch } = useQuery({
+    queryKey: ["system", "health"],
+    queryFn: ({ signal }) =>
+      fetchJson(getApiHealthUrl(), healthSchema, { signal }),
+    staleTime: 30_000,
+    refetchOnWindowFocus: false,
+  });
+  const state = isPending ? "checking" : isError ? "error" : "connected";
+  const message = isPending
+    ? "Verificando conexÃ£oâ€¦"
+    : isError
+      ? "NÃ£o foi possÃ­vel conectar ao serviÃ§o. Tente novamente em instantes."
+      : "Conectado Ã  API.";
+
+  return (
+    <div className={styles.status} data-state={state}>
+      <p role="status" aria-live="polite">{message}</p>
+      <Button variant="secondary" type="button" disabled={isFetching} onClick={() => void refetch()}>
+        {isFetching ? "Verificandoâ€¦" : "Verificar novamente"}
+      </Button>
+    </div>
+  );
+}
+
+=== src\services\api-client.ts ===
+import type { ZodType } from "zod";
+
+export class ApiError extends Error {
+  constructor(public readonly status: number, public readonly detail?: string) {
+    super(detail ?? `A requisiÃ§Ã£o falhou (HTTP ${status}).`);
+    this.name = "ApiError";
+  }
+}
+
+export async function fetchJson<T>(
+  url: string | URL,
+  schema: ZodType<T>,
+  options: RequestInit = {},
+): Promise<T> {
+  const headers = new Headers(options.headers);
+  headers.set("Accept", "application/json");
+  const response = await fetch(url, { ...options, headers, cache: "no-store" });
+  if (!response.ok) {
+    const payload: unknown = await response.json().catch(() => null);
+    const detail = payload && typeof payload === "object" && "detail" in payload && typeof payload.detail === "string"
+      ? payload.detail
+      : undefined;
+    throw new ApiError(response.status, detail);
+  }
+  if (response.status === 204) return schema.parse(undefined);
+  const data: unknown = await response.json();
+  return schema.parse(data);
+}
+
+=== src\services\care.ts ===
+import { z, type ZodType } from "zod";
+import { ApiError, fetchJson } from "./api-client.ts";
+import {
+  linkPageSchema,
+  linkRequestSchema,
+  linkSchema,
+  patientPageSchema,
+  patientProfileSchema,
+  profileSchema,
+  profileUpdate,
+  type Profile,
+  type ProfileValues,
+} from "../types/care.ts";
+
+function request<T>(
+  path: string,
+  schema: ZodType<T>,
+  options: RequestInit = {},
+) {
+  const base = process.env.NEXT_PUBLIC_API_URL;
+  if (!base) throw new Error("EndereÃ§o da API nÃ£o configurado.");
+  return fetchJson(`${base.replace(/\/$/, "")}${path}`, schema, {
+    ...options,
+    credentials: "include",
+  });
+}
+
+function pageQuery(cursor?: string) {
+  const params = new URLSearchParams({ limit: "20" });
+  if (cursor) params.set("cursor", z.string().uuid().parse(cursor));
+  return params;
+}
+
+export async function getProfile(
+  userId: string,
+  role: Profile["role"],
+  signal?: AbortSignal,
+) {
+  const profile = await request("/me", profileSchema, { signal });
+  if (profile.user_id !== userId || profile.role !== role)
+    throw new ApiError(403);
+  return profile;
+}
+
+export async function updateProfile(profile: Profile, values: ProfileValues) {
+  const updated = await request("/me", profileSchema, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(profileUpdate(profile, values)),
+  });
+  if (
+    updated.id !== profile.id ||
+    updated.user_id !== profile.user_id ||
+    updated.role !== profile.role
+  )
+    throw new ApiError(403);
+  return updated;
+}
+
+export function getLinks(cursor?: string, signal?: AbortSignal) {
+  return request(
+    `/me/professional-links?${pageQuery(cursor)}`,
+    linkPageSchema,
+    { signal },
+  );
+}
+
+// Read every page before deciding whether a patient already has an active link.
+export async function getAllLinks(signal?: AbortSignal) {
+  const items = [];
+  const seen = new Set<string>();
+  let cursor: string | undefined;
+  do {
+    const page = await getLinks(cursor, signal);
+    items.push(...page.items);
+    if (!page.next_cursor) break;
+    if (seen.has(page.next_cursor))
+      throw new Error("NÃ£o foi possÃ­vel concluir a leitura dos vÃ­nculos.");
+    seen.add(page.next_cursor);
+    cursor = page.next_cursor;
+  } while (cursor);
+  const unique = [...new Map(items.map((link) => [link.id, link])).values()];
+  const activePatients = unique
+    .filter((link) => link.status === "active")
+    .map((link) => link.patient_id);
+  if (new Set(activePatients).size !== activePatients.length)
+    throw new Error(
+      "NÃ£o foi possÃ­vel confirmar o vÃ­nculo ativo. Atualize a pÃ¡gina.",
+    );
+  return unique;
+}
+
+export function requestLink(professionalId: string) {
+  return request("/me/professional-links", linkSchema, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(
+      linkRequestSchema.parse({ professional_id: professionalId }),
+    ),
+  });
+}
+
+export function transitionLink(
+  id: string,
+  action: "accept" | "reject" | "revoke",
+) {
+  const linkId = z.string().uuid().parse(id);
+  const path = `/me/professional-links/${linkId}/${action}`;
+  if (action === "accept") return request(path, linkSchema, { method: "POST" });
+  return request(path, z.undefined(), { method: "POST" });
+}
+
+export function getPatients(cursor?: string, signal?: AbortSignal) {
+  return request(`/patients?${pageQuery(cursor)}`, patientPageSchema, {
+    signal,
+  });
+}
+
+export async function getPatient(id: string, signal?: AbortSignal) {
+  const patient = await request(
+    `/patients/${z.string().uuid().parse(id)}`,
+    patientProfileSchema,
+    { signal },
+  );
+  if (patient.id !== id) throw new ApiError(403);
+  return patient;
+}
+
+=== src\services\health.ts ===
+import { ApiError } from "./api-client.ts";
+
+export async function checkApiHealth(
+  apiUrl: string,
+  signal?: AbortSignal,
+): Promise<number> {
+  const response = await fetch(new URL("/health", apiUrl), {
+    signal,
+    cache: "no-store",
+  });
+  if (!response.ok) throw new ApiError(response.status);
+  return response.status;
+}
+
+=== src\styles\globals.css ===
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap");
+@import "./tokens.css";
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--color-background);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: var(--color-primary);
+  font-weight: 500;
+  text-decoration: none;
+  text-underline-offset: 0.2em;
+  transition: color 0.15s ease;
+}
+
+a:hover {
+  color: var(--color-primary-hover);
+  text-decoration: underline;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+  min-height: 44px;
+  border-radius: var(--radius-control);
+  transition: background-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+}
+
+button:active:not(:disabled) {
+  transform: scale(0.99);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+input,
+select,
+textarea {
+  min-height: 46px;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--color-border);
+  background: var(--color-input);
+  color: var(--color-text);
+  padding: 0.625rem 0.875rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  background: var(--color-surface);
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.2;
+  margin-top: 0;
+  text-wrap: balance;
+}
+
+h1 {
+  letter-spacing: -0.03em;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+=== src\styles\tokens.css ===
+:root {
+  /* Base e SuperfÃ­cies (Preservando variÃ¡veis originais) */
+  --color-background: #f4f7f6;
+  --color-surface: #ffffff;
+  --color-surface-elevated: #ffffff;
+  --color-surface-subtle: #eef4f1;
+
+  /* Tipografia */
+  --color-text: #102a24;
+  --color-muted: #47635b;
+  --color-tertiary: #6b847d;
+
+  /* Marca Principal (Verde ClÃ­nico / ReabilitaÃ§Ã£o) */
+  --color-primary: #0f6b53;
+  --color-primary-hover: #0a523f;
+  --color-primary-soft: #e3f3ed;
+
+  /* Destaque TecnolÃ³gico (Identidade Ctrl X / AÃ§Ãµes Especiais / Mapa Corporal) */
+  --color-accent: #6d28d9;
+  --color-accent-hover: #5b21b6;
+  --color-accent-soft: #f3e8ff;
+
+  /* Bordas, Inputs e Foco */
+  --color-border: #d7e3de;
+  --color-border-strong: #b8cbc3;
+  --color-focus: #0f6b53;
+  --color-input: #f8fbfa;
+
+  /* Estados SemÃ¢nticos (Feedback ClÃ­nico e Alertas) */
+  --color-success: #0d9488;
+  --color-success-soft: #ccfbf1;
+  --color-warning: #d97706;
+  --color-warning-soft: #fef3c7;
+  --color-info: #0284c7;
+  --color-info-soft: #e0f2fe;
+  --color-error: #be123c;
+  --color-error-soft: #ffe4e6;
+
+  /* Escala Visual AnalÃ³gica de Dor (EVA 0 a 10) */
+  --pain-none: #10b981;
+  --pain-none-soft: #ecfdf5;
+  --pain-mild: #0ea5e9;
+  --pain-mild-soft: #f0f9ff;
+  --pain-moderate: #f59e0b;
+  --pain-moderate-soft: #fffbeb;
+  --pain-severe: #e11d48;
+  --pain-severe-soft: #fff1f2;
+
+  /* Geometria e ElevaÃ§Ã£o (Ergonomia para uso com dor) */
+  --radius-control: 0.75rem;
+  --radius-card: 1.125rem;
+  --radius-pill: 9999px;
+  --shadow-sm: 0 1px 2px rgb(16 42 36 / 4%);
+  --shadow-surface: 0 1px 3px rgb(16 42 36 / 4%), 0 8px 24px rgb(16 42 36 / 5%);
+  --shadow-floating: 0 12px 32px rgb(16 42 36 / 10%);
+
+  /* EspaÃ§amentos e Layout */
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2rem;
+  --space-5: 3rem;
+  --content-width: 72rem;
+
+  /* Fontes */
+  --font-display: "Poppins", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Inter", "Segoe UI", system-ui, sans-serif;
+}
+
+=== src\types\care.ts ===
+import { z } from "zod";
+
+const identity = {
+  id: z.string().uuid(),
+  user_id: z.string().uuid(),
+  full_name: z.string(),
+};
+
+export const patientProfileSchema = z.object({
+  ...identity,
+  role: z.literal("PATIENT"),
+});
+export const professionalProfileSchema = z.object({
+  ...identity,
+  role: z.literal("PROFESSIONAL"),
+  crefito_region: z.number().int().min(1).max(22).nullable(),
+  crefito_number: z.string().nullable(),
+  verification_status: z.enum(["unverified", "verified"]),
+});
+export const profileSchema = z.discriminatedUnion("role", [
+  patientProfileSchema,
+  professionalProfileSchema,
+]);
+export type Profile = z.infer<typeof profileSchema>;
+export type PatientProfile = z.infer<typeof patientProfileSchema>;
+
+export const fullNameSchema = z
+  .string()
+  .trim()
+  .min(1, "Informe seu nome completo.")
+  .max(200, "Use atÃ© 200 caracteres.");
+export const crefitoRegionSchema = z
+  .number({ error: "Informe a regiÃ£o do CREFITO." })
+  .int()
+  .min(1, "Use uma regiÃ£o de 1 a 22.")
+  .max(22, "Use uma regiÃ£o de 1 a 22.");
+export const crefitoNumberSchema = z
+  .string()
+  .trim()
+  .regex(
+    /^[0-9]{1,7}(?:-[fF])?$/,
+    "Informe atÃ© 7 dÃ­gitos, com sufixo -F opcional.",
+  )
+  .refine(
+    (value) => Number.parseInt(value, 10) > 0,
+    "Informe um registro maior que zero.",
+  );
+export const profileFormSchema = z.discriminatedUnion("role", [
+  z.object({ role: z.literal("PATIENT"), full_name: fullNameSchema }),
+  z.object({
+    role: z.literal("PROFESSIONAL"),
+    full_name: fullNameSchema,
+    crefito_region: crefitoRegionSchema,
+    crefito_number: crefitoNumberSchema,
+  }),
+]);
+export type ProfileValues = z.infer<typeof profileFormSchema>;
+
+export const linkRequestSchema = z.object({
+  professional_id: z
+    .string()
+    .trim()
+    .uuid("Informe o cÃ³digo completo enviado pelo fisioterapeuta."),
+});
+export const linkSchema = z.object({
+  id: z.string().uuid(),
+  patient_id: z.string().uuid(),
+  professional_id: z.string().uuid(),
+  status: z.enum(["pending", "active", "revoked", "rejected", "cancelled"]),
+  created_at: z.string().datetime({ offset: true }),
+  accepted_at: z.string().datetime({ offset: true }).nullable(),
+  revoked_at: z.string().datetime({ offset: true }).nullable(),
+  closed_at: z.string().datetime({ offset: true }).nullable(),
+});
+export type CareLink = z.infer<typeof linkSchema>;
+export const linkPageSchema = z.object({
+  items: z.array(linkSchema),
+  next_cursor: z.string().uuid().nullable(),
+});
+export const patientPageSchema = z.object({
+  items: z.array(patientProfileSchema),
+  next_cursor: z.string().uuid().nullable(),
+});
+
+export const linkStatusLabels: Record<CareLink["status"], string> = {
+  pending: "SolicitaÃ§Ã£o pendente",
+  active: "VÃ­nculo ativo",
+  rejected: "SolicitaÃ§Ã£o recusada",
+  cancelled: "SolicitaÃ§Ã£o cancelada",
+  revoked: "VÃ­nculo encerrado",
+};
+
+export function profileUpdate(profile: Profile, values: ProfileValues) {
+  const parsed = profileFormSchema.parse(values);
+  if (parsed.role !== profile.role)
+    throw new Error("Perfil de acesso incompatÃ­vel.");
+  if (profile.role === "PROFESSIONAL" && parsed.role === "PROFESSIONAL") {
+    const normalizedNumber = `${Number.parseInt(parsed.crefito_number, 10)}-F`;
+    if (
+      profile.crefito_region !== parsed.crefito_region ||
+      profile.crefito_number !== normalizedNumber
+    ) {
+      return {
+        full_name: parsed.full_name,
+        crefito_region: parsed.crefito_region,
+        crefito_number: normalizedNumber,
+      };
+    }
+  }
+  return { full_name: parsed.full_name };
+}
+
+=== src\types\health.ts ===
+import { z } from "zod";
+
+// Matches GET /health in ctrl-x-backend/app/main.py.
+export const healthSchema = z.object({ status: z.literal("ok") });
+export type HealthResponse = z.infer<typeof healthSchema>;
+
