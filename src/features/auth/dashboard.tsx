@@ -203,16 +203,13 @@ export function Dashboard({ role }: { role: User["role"] }) {
 
         <article className={styles.metricCard}>
           <span className={styles.metricLabel}>
-            {patient ? "Status do cadastro" : "Registro profissional"}
+            Status da conta
           </span>
           <strong className={styles.metricValue}>
-            {profile.isPending
-              ? "—"
-              : patient
-                ? "Ativo"
-                : profile.data?.role === "PROFESSIONAL" && profile.data.crefito_number
-                  ? "Informado"
-                  : "A preencher"}
+            {profile.data?.role === "PATIENT" ||
+            (profile.data?.role === "PROFESSIONAL" && profile.data.account_status === "active")
+              ? "Ativa"
+              : "—"}
           </strong>
           <span className={styles.metricHint}>
             {profile.data?.role === "PROFESSIONAL" &&

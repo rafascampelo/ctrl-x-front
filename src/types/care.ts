@@ -15,6 +15,7 @@ export const professionalProfileSchema = z.object({
   role: z.literal("PROFESSIONAL"),
   crefito_region: z.number().int().min(1).max(22).nullable(),
   crefito_number: z.string().nullable(),
+  account_status: z.literal("active").optional(),
   verification_status: z.enum(["unverified", "verified"]),
 });
 export const profileSchema = z.discriminatedUnion("role", [
