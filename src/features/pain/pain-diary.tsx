@@ -11,7 +11,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { useCare, useSessionError } from "@/features/care/care-area";
 import { CareError, CareLoading, Feedback } from "@/features/care/states";
-import { ApiError } from "@/services/api-client";
 import { createPainRecord, listPainRecords } from "@/services/pain";
 import {
   BODY_REGIONS,
@@ -26,7 +25,6 @@ function formatRecordTimestamp(iso: string) {
   return new Intl.DateTimeFormat("pt-BR", {
     dateStyle: "medium",
     timeStyle: "short",
-    timeZone: "America/Sao_Paulo",
   }).format(new Date(iso));
 }
 
@@ -56,9 +54,11 @@ export function PainDiary() {
   const selectedRegion = useWatch({ control, name: "region" });
   const selectedIntensity = useWatch({ control, name: "intensity" }) ?? 0;
   const severity = getPainSeverity(selectedIntensity);
+  const invalidPeriod = !!startDate && !!endDate && startDate > endDate;
 
   const historyQuery = useInfiniteQuery({
     queryKey: ["care", user.id, "pain-records", { startDate, endDate }],
+    enabled: !invalidPeriod,
     initialPageParam: undefined as string | undefined,
     queryFn: ({ pageParam, signal }) =>
       listPainRecords(
@@ -90,12 +90,6 @@ export function PainDiary() {
 
   useSessionError(historyQuery.error || createMutation.error);
 
-  const isEndpointMissing =
-    (historyQuery.error instanceof ApiError &&
-      historyQuery.error.status === 404) ||
-    (createMutation.error instanceof ApiError &&
-      createMutation.error.status === 404);
-
   const records = [
     ...new Map(
       (historyQuery.data?.pages.flatMap((p) => p.items) ?? []).map((item) => [
@@ -118,13 +112,7 @@ export function PainDiary() {
           </div>
         </div>
 
-        {isEndpointMissing && (
-          <Feedback message="A interface do Diário de Dor está pronta e aguardando a ativação da rota /api/v1/pain-records no back-end." />
-        )}
-
-        {!isEndpointMissing && (
-          <Feedback error={createMutation.error} message={savedNotice} />
-        )}
+        <Feedback error={createMutation.error} message={savedNotice} />
 
         <form
           className={styles.form}
@@ -289,7 +277,7 @@ export function PainDiary() {
 
               <div
                 className={styles.regionChips}
-                role="radiogroup"
+                role="group"
                 aria-label="Região corporal"
               >
                 {BODY_REGIONS.map((item) => {
@@ -298,8 +286,7 @@ export function PainDiary() {
                     <button
                       key={item.id}
                       type="button"
-                      role="radio"
-                      aria-checked={active}
+                      aria-pressed={active}
                       className={[
                         styles.regionChip,
                         active ? styles.regionChipActive : "",
@@ -335,7 +322,7 @@ export function PainDiary() {
 
             <div
               className={styles.evaGrid}
-              role="radiogroup"
+              role="group"
               aria-label="Intensidade da dor de 0 a 10"
             >
               {Array.from({ length: 11 }, (_, score) => {
@@ -345,8 +332,7 @@ export function PainDiary() {
                   <button
                     key={score}
                     type="button"
-                    role="radio"
-                    aria-checked={active}
+                    aria-pressed={active}
                     data-level={itemSeverity.level}
                     className={[
                       styles.evaButton,
@@ -381,7 +367,7 @@ export function PainDiary() {
               id="pain-description"
               className={styles.textarea}
               placeholder="Ex: Senti fisgada ao levantar da cadeira ou após caminhada de 20 minutos."
-              maxLength={1000}
+              maxLength={2000}
               {...register("description")}
             />
             <span className={styles.errorText}>
@@ -408,7 +394,7 @@ export function PainDiary() {
           </div>
           <Button
             variant="secondary"
-            disabled={historyQuery.isFetching}
+            disabled={invalidPeriod || historyQuery.isFetching}
             onClick={() => void historyQuery.refetch()}
           >
             Atualizar
@@ -422,6 +408,8 @@ export function PainDiary() {
             <input
               id="filter-start"
               type="date"
+              aria-invalid={invalidPeriod}
+              aria-describedby={invalidPeriod ? "pain-period-error" : undefined}
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
             />
@@ -431,6 +419,8 @@ export function PainDiary() {
             <input
               id="filter-end"
               type="date"
+              aria-invalid={invalidPeriod}
+              aria-describedby={invalidPeriod ? "pain-period-error" : undefined}
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
             />
@@ -449,9 +439,13 @@ export function PainDiary() {
           </Button>
         </div>
 
-        {historyQuery.isPending ? (
+        {invalidPeriod ? (
+          <p id="pain-period-error" className={styles.errorText} role="alert">
+            A data inicial precisa ser anterior ou igual à data final.
+          </p>
+        ) : historyQuery.isPending ? (
           <CareLoading title="Carregando seu histórico de dor" />
-        ) : historyQuery.isError && !isEndpointMissing ? (
+        ) : historyQuery.isError ? (
           <CareError
             error={historyQuery.error}
             retry={() => void historyQuery.refetch()}
@@ -485,12 +479,9 @@ export function PainDiary() {
                     {item.description && (
                       <p className={styles.recordDesc}>{item.description}</p>
                     )}
-                    <span className={styles.recordDate}>
-                      Registrado em{" "}
-                      {formatRecordTimestamp(
-                        item.recorded_at ?? item.created_at,
-                      )}
-                    </span>
+                    <time className={styles.recordDate} dateTime={item.occurred_at}>
+                      {formatRecordTimestamp(item.occurred_at)}
+                    </time>
                   </li>
                 );
               })}
