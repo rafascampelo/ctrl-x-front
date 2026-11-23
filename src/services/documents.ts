@@ -1,5 +1,5 @@
 import { z, type ZodType } from "zod";
-import { ApiError, fetchJson } from "./api-client";
+import { fetchJson } from "./api-client";
 import {
   clinicalDocumentPageSchema,
   clinicalDocumentSchema,
@@ -51,26 +51,10 @@ export async function uploadClinicalDocument(params: {
     formData.append("patient_id", z.string().uuid().parse(params.patientId));
   }
 
-  const response = await fetch(`${getBaseUrl()}/documents`, {
+  return request("/documents", clinicalDocumentSchema, {
     method: "POST",
     body: formData,
-    credentials: "include",
-    cache: "no-store",
   });
-
-  if (!response.ok) {
-    const payload: unknown = await response.json().catch(() => null);
-    const detail =
-      payload &&
-      typeof payload === "object" &&
-      "detail" in payload &&
-      typeof payload.detail === "string"
-        ? payload.detail
-        : undefined;
-    throw new ApiError(response.status, detail);
-  }
-
-  return clinicalDocumentSchema.parse(await response.json());
 }
 
 export function verifyDocumentOcr(documentId: string, input: VerifyOcrInput) {

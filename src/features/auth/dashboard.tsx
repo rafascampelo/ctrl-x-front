@@ -25,15 +25,14 @@ export function Dashboard({ role }: { role: User["role"] }) {
     retry: false,
     staleTime: 0,
     refetchOnWindowFocus: true,
+    refetchInterval: 60_000,
   });
 
   useEffect(() => {
-    if (session.error instanceof AuthError && session.error.status === 401) {
-      router.replace("/login?expired=1");
-    } else if (session.data && session.data.role !== role) {
+    if (session.data && session.data.role !== role) {
       router.replace(dashboardPath(session.data.role));
     }
-  }, [session.data, session.error, role, router]);
+  }, [session.data, role, router]);
 
   const userId = session.data?.id;
   const isValidRole = session.data?.role === role;
