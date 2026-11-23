@@ -17,29 +17,6 @@ import { useCare, useSessionError } from "./care-area";
 import { CareError, CareLoading, Feedback } from "./states";
 import styles from "./care.module.css";
 
-export function VerificationStatus({
-  profile,
-}: {
-  profile: Extract<Profile, { role: "PROFESSIONAL" }>;
-}) {
-  return (
-    <>
-      <span
-        className={`${styles.status} ${profile.verification_status === "unverified" ? styles.neutral : ""}`}
-      >
-        {profile.verification_status === "verified"
-          ? "Verificado pelo serviço"
-          : "Não verificado"}
-      </span>
-      <p className={styles.muted}>
-        {profile.verification_status === "verified"
-          ? "Status informado pelo serviço responsável pela verificação profissional."
-          : "Seu registro ainda não foi verificado pelo serviço. O acesso aos pacientes depende dessa verificação."}
-      </p>
-    </>
-  );
-}
-
 export function ProfileFacts({
   profile,
   email,
@@ -187,10 +164,6 @@ export function ProfileEditor({ profile }: { profile: Profile }) {
               </span>
             </div>
           </div>
-          <p className={styles.muted}>
-            Alterações no nome ou no CREFITO podem exigir nova verificação pelo
-            serviço.
-          </p>
         </fieldset>
       )}
       <div className={styles.actions}>
@@ -252,11 +225,6 @@ function ProfileContent() {
       <aside className={styles.aside} aria-label="Informações da conta">
         <h2>Sua identificação</h2>
         <ProfileFacts profile={query.data} email={user.email} />
-        {query.data.role === "PROFESSIONAL" && (
-          <div className={styles.verification}>
-            <VerificationStatus profile={query.data} />
-          </div>
-        )}
         <p className={styles.muted}>
           E-mail e perfil de acesso são definidos pela conta e aparecem aqui
           para consulta.
