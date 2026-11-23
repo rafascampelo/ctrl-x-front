@@ -36,6 +36,7 @@ const professional = {
   role: "PROFESSIONAL" as const,
   crefito_region: 3,
   crefito_number: "12345-F",
+  account_status: "active" as const,
   verification_status: "unverified" as const,
 };
 const pending: CareLink = {
@@ -111,6 +112,7 @@ test("patient and physiotherapist profile identification render only available d
       email: "synthetic@example.test",
     }),
   );
+  assert.match(professionalHtml, /Status da conta<\/dt><dd>Ativa<\/dd>/);
   assert.match(professionalHtml, /CREFITO-3 · 12345-F/);
   assert.match(professionalHtml, new RegExp(professional.id));
 });

@@ -32,6 +32,12 @@ export function ProfileFacts({
       <dd>{profile.role === "PATIENT" ? "Paciente" : "Fisioterapeuta"}</dd>
       {profile.role === "PROFESSIONAL" && (
         <>
+          {profile.account_status === "active" && (
+            <>
+              <dt>Status da conta</dt>
+              <dd>Ativa</dd>
+            </>
+          )}
           <dt>Código para vínculo</dt>
           <dd>
             <code className={styles.code}>{profile.id}</code>
@@ -40,7 +46,7 @@ export function ProfileFacts({
               solicitação.
             </p>
           </dd>
-          <dt>CREFITO cadastrado</dt>
+          <dt>CREFITO informado</dt>
           <dd>
             {profile.crefito_region && profile.crefito_number
               ? `CREFITO-${profile.crefito_region} · ${profile.crefito_number}`
