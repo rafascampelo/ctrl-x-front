@@ -7,7 +7,6 @@ import {
   ProfileFacts,
   ProfileEditor,
   ProfilePage,
-  VerificationStatus,
 } from "../src/features/care/profile.tsx";
 import { CareArea } from "../src/features/care/care-area.tsx";
 import {
@@ -67,6 +66,7 @@ function renderArea(
   };
   client.setQueryData(["care-session"], user);
   client.setQueryData(["care", user.id, "profile"], profile);
+  client.setQueryDefaults(["care", user.id, "links"], { staleTime: Infinity });
   client.setQueryData(["care", user.id, "links"], links);
   if (profileError) {
     client.getQueryCache().find({ queryKey: ["care", user.id, "profile"] })?.setState({ status: "error", error: profileError, fetchStatus: "idle" });
@@ -113,20 +113,6 @@ test("patient and physiotherapist profile identification render only available d
   );
   assert.match(professionalHtml, /CREFITO-3 · 12345-F/);
   assert.match(professionalHtml, new RegExp(professional.id));
-});
-
-test("verification is read-only and follows backend status", () => {
-  const unverified = renderToStaticMarkup(
-    createElement(VerificationStatus, { profile: professional }),
-  );
-  assert.match(unverified, /Não verificado/);
-  assert.doesNotMatch(unverified, /<input|<select/);
-  const verified = renderToStaticMarkup(
-    createElement(VerificationStatus, {
-      profile: { ...professional, verification_status: "verified" },
-    }),
-  );
-  assert.match(verified, /Verificado pelo serviço/);
 });
 
 test("profile forms render accessible name and CREFITO fields without profession selector", () => {
@@ -188,12 +174,13 @@ test("active relationship hides new requests and offers confirmed termination", 
   assert.match(dialog, /Manter vínculo/);
 });
 
-test("unverified professionals see requests with disabled acceptance and enabled rejection", () => {
+test("professionals with declared registration can accept or reject pending requests", () => {
   const html = renderArea(professional, createElement(RelationshipsPage), [
     pending,
   ]);
-  assert.match(html, /Verificação profissional necessária/);
-  assert.match(html, /disabled="">Aceitar solicitação/);
+  assert.doesNotMatch(html, /Verificação profissional necessária/);
+  assert.match(html, />Aceitar solicitação<\/button>/);
+  assert.doesNotMatch(html, /disabled[^>]*>Aceitar solicitação/);
   assert.match(html, />Recusar<\/button>/);
   assert.doesNotMatch(html, /Ver identificação/);
 });

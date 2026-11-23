@@ -250,7 +250,7 @@ export function AuthForm({ register: isRegister }: { register: boolean }) {
                         maxLength={20}
                         required
                         aria-invalid={!!errors.crefito_number}
-                        aria-describedby="register-number-error register-verification-hint"
+                        aria-describedby="register-number-error register-crefito-hint"
                         {...register("crefito_number")}
                       />
                       <span
@@ -261,9 +261,8 @@ export function AuthForm({ register: isRegister }: { register: boolean }) {
                       </span>
                     </div>
                   </div>
-                  <p id="register-verification-hint" className={styles.hint}>
-                    O registro será enviado ao serviço. O acesso profissional
-                    depende da verificação.
+                  <p id="register-crefito-hint" className={styles.hint}>
+                    Informe o número da inscrição, por exemplo, 12345-F.
                   </p>
                 </div>
               )}

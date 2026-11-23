@@ -161,32 +161,6 @@
   margin: 0.5rem 0 1.25rem;
 }
 
-/* Alerta Profissional */
-.alertCard {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 1rem;
-  padding: 1.25rem 1.5rem;
-  border-radius: var(--radius-card);
-  background: var(--color-warning-soft);
-  border: 1px solid rgb(217 119 6 / 28%);
-}
-
-.alertCard h2 {
-  font-size: 1rem;
-  margin: 0 0 0.25rem;
-  color: #92400e;
-}
-
-.alertCard p {
-  margin: 0;
-  font-size: 0.875rem;
-  color: #78350f;
-  max-width: 34rem;
-}
-
 /* Status do Vínculo */
 .statusBox,
 .emptyBox {

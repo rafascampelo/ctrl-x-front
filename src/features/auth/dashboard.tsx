@@ -49,14 +49,12 @@ export function Dashboard({ role }: { role: User["role"] }) {
     gcTime: 0,
   });
 
-  const isVerifiedProfessional =
-    profile.data?.role === "PROFESSIONAL" &&
-    profile.data.verification_status === "verified";
+  const isProfessional = profile.data?.role === "PROFESSIONAL";
 
   const patientsQuery = useQuery({
     queryKey: ["care", userId, "patients-preview"],
     queryFn: ({ signal }) => getPatients(undefined, signal),
-    enabled: !!userId && isVerifiedProfessional,
+    enabled: !!userId && isProfessional,
     gcTime: 0,
   });
 
@@ -212,9 +210,9 @@ export function Dashboard({ role }: { role: User["role"] }) {
               ? "—"
               : patient
                 ? "Ativo"
-                : isVerifiedProfessional
-                  ? "Verificado"
-                  : "Em análise"}
+                : profile.data?.role === "PROFESSIONAL" && profile.data.crefito_number
+                  ? "Informado"
+                  : "A preencher"}
           </strong>
           <span className={styles.metricHint}>
             {profile.data?.role === "PROFESSIONAL" &&
@@ -228,27 +226,6 @@ export function Dashboard({ role }: { role: User["role"] }) {
 
       <div className={styles.layout}>
         <div className={styles.primaryColumn}>
-          {!patient &&
-            profile.data?.role === "PROFESSIONAL" &&
-            profile.data.verification_status === "unverified" && (
-              <div className={styles.alertCard} role="status">
-                <div>
-                  <h2>Verificação profissional pendente</h2>
-                  <p>
-                    Seu registro CREFITO ainda está aguardando validação pelo
-                    serviço. Assim que aprovado, você poderá aceitar pacientes e
-                    iniciar acompanhamentos.
-                  </p>
-                </div>
-                <Link
-                  href="/professional/profile"
-                  className={[ui.button, ui.secondary].join(" ")}
-                >
-                  Conferir meu CREFITO
-                </Link>
-              </div>
-            )}
-
           <section
             className={styles.surface}
             aria-labelledby="care-status-title"

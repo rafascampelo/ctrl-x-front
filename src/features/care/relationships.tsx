@@ -11,7 +11,6 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { ContentState } from "@/components/ui/content-state";
 import { ApiError } from "@/services/api-client";
 import {
   getAllLinks,
@@ -290,9 +289,6 @@ export function RelationshipsPage() {
     );
   if (profile.isPending || links.isPending)
     return <CareLoading title="Carregando seus vínculos" />;
-  const verified =
-    profile.data.role === "PROFESSIONAL" &&
-    profile.data.verification_status === "verified";
   const active = links.data.filter((link) => link.status === "active");
   const pending = links.data.filter((link) => link.status === "pending");
   const history = links.data
@@ -385,22 +381,7 @@ export function RelationshipsPage() {
           />
         </section>
       )}
-      {!patient && (
-        <>
-          {verified ? (
-            <PatientsList />
-          ) : (
-            <ContentState title="Verificação profissional necessária">
-              <p>
-                O serviço informa que seu registro ainda não foi verificado.
-                Você pode revisar seu perfil e recusar solicitações. A listagem
-                de pacientes e o aceite dependem da verificação.
-              </p>
-              <Link href="/professional/profile">Revisar meu perfil</Link>
-            </ContentState>
-          )}
-        </>
-      )}
+      {!patient && <PatientsList />}
       <section className={styles.surface} aria-labelledby="requests-title">
         <div className={styles.sectionHeader}>
           <h2 id="requests-title">
@@ -433,7 +414,7 @@ export function RelationshipsPage() {
                   ) : (
                     <>
                       <Button
-                        disabled={busy || !verified}
+                        disabled={busy}
                         onClick={() => transition(link.id, "accept")}
                       >
                         Aceitar solicitação

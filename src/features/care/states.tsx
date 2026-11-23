@@ -18,7 +18,7 @@ export function errorMessage(error: unknown) {
   if (error instanceof ApiError || error instanceof AuthError) {
     switch (error.status) {
       case 403:
-        return "Acesso não autorizado. Confira seu perfil e a verificação profissional.";
+        return "Acesso não autorizado para esta conta.";
       case 404:
         return "Recurso indisponível ou sem permissão de acesso. Confira os dados e tente novamente.";
       case 409:
