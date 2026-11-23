@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { logout } from "./auth";
+import { reportSignedOut } from "@/services/session";
 
 export function LogoutButton() {
   const client = useQueryClient();
@@ -15,6 +16,7 @@ export function LogoutButton() {
     setFailed(false);
     try {
       await logout();
+      reportSignedOut();
       await client.cancelQueries();
       client.clear();
       // A full navigation also discards drafts and in-memory component state.

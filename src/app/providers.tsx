@@ -8,9 +8,9 @@ export function Providers({ children }: { children: ReactNode }) {
   const [queryClient] = useState(
     () => new QueryClient({ defaultOptions: { queries: { retry: false } } }),
   );
-  useEffect(() => watchSession(() => {
+  useEffect(() => watchSession((reason) => {
     queryClient.clear();
-    window.location.replace("/login?expired=1");
+    window.location.replace(reason === "expired" ? "/login?expired=1" : "/login");
   }), [queryClient]);
 
   return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;

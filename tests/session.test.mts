@@ -5,18 +5,20 @@ import { authRequest } from "../src/features/auth/auth.ts";
 import { fetchJson } from "../src/services/api-client.ts";
 import {
   reportSessionLifetime,
+  reportSignedOut,
   reportUnauthorized,
   watchSession,
 } from "../src/services/session.ts";
 
 process.env.NEXT_PUBLIC_API_URL = "http://localhost:8000/api/v1";
 
-function observe(t: TestContext, pathname: string) {
+function observe(t: TestContext, pathname: string, broadcastChannel?: object) {
   t.mock.timers.enable({ apis: ["setTimeout", "Date"], now: 0 });
   const browser = Object.assign(new EventTarget(), {
     location: { pathname },
     setTimeout: globalThis.setTimeout,
     clearTimeout: globalThis.clearTimeout,
+    BroadcastChannel: broadcastChannel,
   });
   Object.defineProperty(globalThis, "window", { configurable: true, value: browser });
   const expire = t.mock.fn();
@@ -62,5 +64,28 @@ test("returning to the page catches an elapsed deadline after timer throttling",
   reportSessionLifetime("60");
   t.mock.timers.setTime(61_000);
   browser.dispatchEvent(new Event("pageshow"));
+  assert.equal(expire.mock.callCount(), 1);
+});
+
+test("broadcasts successful logout and ends the session in another tab", (t) => {
+  const channel = Object.assign(new EventTarget(), {
+    postMessage: t.mock.fn(),
+    close: t.mock.fn(),
+  });
+  const { expire } = observe(t, "/patient/timeline", class {
+    constructor() {
+      return channel;
+    }
+  });
+  reportSessionLifetime("900");
+  reportSignedOut();
+  assert.equal(channel.postMessage.mock.callCount(), 1);
+  assert.deepEqual(channel.postMessage.mock.calls[0].arguments, ["signed-out"]);
+  assert.equal(expire.mock.callCount(), 0);
+
+  channel.dispatchEvent(new MessageEvent("message", { data: "signed-out" }));
+  assert.equal(expire.mock.callCount(), 1);
+  assert.deepEqual(expire.mock.calls[0].arguments, ["signed-out"]);
+  t.mock.timers.tick(900_000);
   assert.equal(expire.mock.callCount(), 1);
 });

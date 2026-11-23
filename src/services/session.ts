@@ -1,5 +1,9 @@
 const SESSION_LIFETIME = "ctrlx:session-lifetime";
 const SESSION_UNAUTHORIZED = "ctrlx:session-unauthorized";
+const SESSION_SIGNED_OUT = "ctrlx:session-signed-out";
+const SESSION_CHANNEL = "ctrlx:session";
+
+type SessionEndReason = "expired" | "signed-out";
 
 export function reportSessionLifetime(header: string | null) {
   if (typeof window === "undefined" || header === null || !/^\d+$/.test(header)) return;
@@ -15,19 +19,38 @@ export function reportUnauthorized() {
   }
 }
 
-export function watchSession(onExpired: () => void) {
+export function reportSignedOut() {
+  window.dispatchEvent(new Event(SESSION_SIGNED_OUT));
+}
+
+export function watchSession(onSessionEnd: (reason: SessionEndReason) => void) {
+  const channel = typeof window.BroadcastChannel === "function"
+    ? new window.BroadcastChannel(SESSION_CHANNEL)
+    : undefined;
   let deadline: number | undefined;
   let timer: number | undefined;
   let expired = false;
 
-  function expire() {
+  function endSession(reason: SessionEndReason) {
     const hadSession = deadline !== undefined;
     window.clearTimeout(timer);
     deadline = undefined;
     const privatePage = /^\/(patient|professional)(\/|$)/.test(window.location.pathname);
     if (expired || (!hadSession && !privatePage)) return;
     expired = true;
-    onExpired();
+    onSessionEnd(reason);
+  }
+
+  function expire() {
+    endSession("expired");
+  }
+
+  function broadcastSignOut() {
+    channel?.postMessage("signed-out");
+  }
+
+  function receiveSessionMessage(event: MessageEvent) {
+    if (event.data === "signed-out") endSession("signed-out");
   }
 
   function checkDeadline() {
@@ -47,12 +70,16 @@ export function watchSession(onExpired: () => void) {
 
   window.addEventListener(SESSION_LIFETIME, updateDeadline);
   window.addEventListener(SESSION_UNAUTHORIZED, expire);
+  window.addEventListener(SESSION_SIGNED_OUT, broadcastSignOut);
+  channel?.addEventListener("message", receiveSessionMessage);
   window.addEventListener("focus", checkDeadline);
   window.addEventListener("pageshow", checkDeadline);
   return () => {
     window.clearTimeout(timer);
     window.removeEventListener(SESSION_LIFETIME, updateDeadline);
     window.removeEventListener(SESSION_UNAUTHORIZED, expire);
+    window.removeEventListener(SESSION_SIGNED_OUT, broadcastSignOut);
+    channel?.close();
     window.removeEventListener("focus", checkDeadline);
     window.removeEventListener("pageshow", checkDeadline);
   };
