@@ -35,8 +35,8 @@ export function AuthForm({ register: isRegister }: { register: boolean }) {
   });
 
   useEffect(() => {
-    if (session.data) router.replace(dashboardPath(session.data.role));
-  }, [router, session.data]);
+    if (session.data && !session.isError) router.replace(dashboardPath(session.data.role));
+  }, [router, session.data, session.isError]);
 
   const {
     register,
@@ -92,7 +92,7 @@ export function AuthForm({ register: isRegister }: { register: boolean }) {
     }
   }
 
-  if (session.isPending || session.data) {
+  if (session.isPending || (session.data && !session.isError)) {
     return (
       <ContentState kind="loading" title="Verificando sua sessão">
         <p>Aguarde para acessar seu espaço.</p>

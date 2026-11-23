@@ -22,7 +22,7 @@ export type TimelineEvent = z.infer<typeof timelineEventSchema>;
 
 export const timelinePageSchema = z.object({
   items: z.array(timelineEventSchema),
-  next_cursor: z.string().uuid().nullable().optional(),
+  next_cursor: z.string().min(1).nullable(),
 });
 
 export const calendarDaySummarySchema = z.object({
@@ -35,9 +35,19 @@ export const calendarDaySummarySchema = z.object({
 export type CalendarDaySummary = z.infer<typeof calendarDaySummarySchema>;
 
 export const calendarMonthSchema = z.object({
-  month: z.string(),
+  month: z.string().regex(/^\d{4}-\d{2}$/),
+  timezone: z.string(),
   days: z.array(calendarDaySummarySchema),
+  pain: z.object({
+    count: z.number().int().min(0),
+    average_intensity: z.number().min(0).max(10).nullable(),
+    latest_intensity: z.number().int().min(0).max(10).nullable(),
+  }),
 });
+
+export function historyMonthKey(date: Date) {
+  return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, "0")].join("-");
+}
 
 export const categoryLabels: Record<TimelineCategory, string> = {
   pain: "Diário de dor",

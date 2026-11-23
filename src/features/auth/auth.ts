@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { fetchJson } from "../../services/api-client.ts";
+import { reportSessionLifetime, reportUnauthorized } from "../../services/session.ts";
 import { crefitoNumberSchema, crefitoRegionSchema } from "../../types/care.ts";
 
 export const userSchema = z.object({ id: z.string().uuid(), email: z.string().email(), role: z.enum(["PATIENT", "PROFESSIONAL"]) });
@@ -37,11 +38,14 @@ export async function authRequest(path: "login" | "register" | "me", body?: obje
     body: body ? JSON.stringify(body) : undefined,
   });
   if (!response.ok) {
+    if (path === "me" && response.status === 401) reportUnauthorized();
     const payload: unknown = await response.json().catch(() => null);
     const detail = z.object({ detail: z.string() }).safeParse(payload);
     throw new AuthError(response.status, detail.success ? detail.data.detail : "Não foi possível concluir a solicitação.");
   }
-  return userSchema.parse(await response.json());
+  const user = userSchema.parse(await response.json());
+  if (path !== "register") reportSessionLifetime(response.headers.get("X-Session-Remaining"));
+  return user;
 }
 
 export function dashboardPath(role: User["role"]) {

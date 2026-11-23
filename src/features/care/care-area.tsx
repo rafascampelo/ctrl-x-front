@@ -9,7 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { authRequest, type User } from "@/features/auth/auth";
 import { LogoutButton } from "@/features/auth/logout-button";
 import { CareError, CareLoading, isExpired } from "./states";
@@ -47,7 +47,6 @@ export function CareArea({
   children?: ReactNode;
 }) {
   const pathname = usePathname();
-  const client = useQueryClient();
   const [expired, setExpired] = useState<unknown>(null);
 
   const session = useQuery({
@@ -60,15 +59,6 @@ export function CareArea({
   });
 
   const error = expired || session.error;
-
-  useEffect(() => {
-    if (isExpired(error)) {
-      void client
-        .cancelQueries({ queryKey: ["care"] })
-        .then(() => client.removeQueries({ queryKey: ["care"] }));
-      client.removeQueries({ queryKey: ["auth"] });
-    }
-  }, [client, error]);
 
   if (error) {
     return (

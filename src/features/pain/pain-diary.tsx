@@ -82,9 +82,10 @@ export function PainDiary() {
         intensity: selectedIntensity,
         description: "",
       });
-      await client.invalidateQueries({
-        queryKey: ["care", user.id, "pain-records"],
-      });
+      await Promise.all([
+        client.invalidateQueries({ queryKey: ["care", user.id, "pain-records"] }),
+        client.invalidateQueries({ queryKey: ["care", user.id, "history"] }),
+      ]);
     },
   });
 

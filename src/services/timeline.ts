@@ -1,10 +1,10 @@
-import { z, type ZodType } from "zod";
-import { fetchJson } from "./api-client";
+import type { ZodType } from "zod";
+import { fetchJson } from "./api-client.ts";
 import {
   calendarMonthSchema,
   timelinePageSchema,
   type TimelineCategory,
-} from "@/types/timeline";
+} from "../types/timeline.ts";
 
 function request<T>(
   path: string,
@@ -24,23 +24,26 @@ export function getPatientTimeline(
     cursor?: string;
     category?: TimelineCategory | "all";
     date?: string;
+    month?: string;
+    timezone: string;
   },
   signal?: AbortSignal,
 ) {
-  const query = new URLSearchParams({ limit: "25" });
-  if (params.cursor) query.set("cursor", z.string().uuid().parse(params.cursor));
+  const query = new URLSearchParams({ limit: "25", timezone: params.timezone });
+  if (params.cursor) query.set("cursor", params.cursor);
   if (params.category && params.category !== "all") {
     query.set("category", params.category);
   }
   if (params.date) query.set("date", params.date);
+  else if (params.month) query.set("month", params.month);
 
   return request(`/me/timeline?${query.toString()}`, timelinePageSchema, {
     signal,
   });
 }
 
-export function getPatientCalendar(month: string, signal?: AbortSignal) {
-  const query = new URLSearchParams({ month });
+export function getPatientCalendar(month: string, timezone: string, signal?: AbortSignal) {
+  const query = new URLSearchParams({ month, timezone });
   return request(`/me/calendar?${query.toString()}`, calendarMonthSchema, {
     signal,
   });
