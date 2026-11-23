@@ -27,7 +27,7 @@ export const painRecordCreateSchema = z.object({
   description: z
     .string()
     .trim()
-    .max(1000, "Use até 1000 caracteres.")
+    .max(2000, "Use até 2000 caracteres.")
     .optional(),
 });
 
@@ -35,11 +35,11 @@ export type PainRecordInput = z.infer<typeof painRecordCreateSchema>;
 
 export const painRecordSchema = z.object({
   id: z.string().uuid(),
-  patient_id: z.string().uuid().optional(),
+  patient_id: z.string().uuid(),
   region: z.string(),
   intensity: z.number().int().min(0).max(10),
-  description: z.string().nullable().optional(),
-  recorded_at: z.string().datetime({ offset: true }).optional(),
+  description: z.string().nullable(),
+  occurred_at: z.string().datetime({ offset: true }),
   created_at: z.string().datetime({ offset: true }),
 });
 
@@ -47,7 +47,7 @@ export type PainRecord = z.infer<typeof painRecordSchema>;
 
 export const painRecordPageSchema = z.object({
   items: z.array(painRecordSchema),
-  next_cursor: z.string().uuid().nullable().optional(),
+  next_cursor: z.string().min(1).nullable(),
 });
 
 export function getPainSeverity(intensity: number): {

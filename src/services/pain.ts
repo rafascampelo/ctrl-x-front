@@ -1,11 +1,11 @@
-import { z, type ZodType } from "zod";
-import { fetchJson } from "./api-client";
+import type { ZodType } from "zod";
+import { fetchJson } from "./api-client.ts";
 import {
   painRecordCreateSchema,
   painRecordPageSchema,
   painRecordSchema,
   type PainRecordInput,
-} from "@/types/pain";
+} from "../types/pain.ts";
 
 function request<T>(
   path: string,
@@ -20,23 +20,29 @@ function request<T>(
   });
 }
 
+function dayBoundary(date: string, nextDay = false): string {
+  const boundary = new Date(date + "T00:00:00");
+  if (nextDay) boundary.setDate(boundary.getDate() + 1);
+  return boundary.toISOString();
+}
+
 export function listPainRecords(
   params: { cursor?: string; startDate?: string; endDate?: string },
   signal?: AbortSignal,
 ) {
   const query = new URLSearchParams({ limit: "20" });
-  if (params.cursor) query.set("cursor", z.string().uuid().parse(params.cursor));
-  if (params.startDate) query.set("start_date", params.startDate);
-  if (params.endDate) query.set("end_date", params.endDate);
+  if (params.cursor) query.set("cursor", params.cursor);
+  if (params.startDate) query.set("start", dayBoundary(params.startDate));
+  if (params.endDate) query.set("end", dayBoundary(params.endDate, true));
 
-  return request(`/pain-records?${query.toString()}`, painRecordPageSchema, {
+  return request(`/me/pain-entries?${query.toString()}`, painRecordPageSchema, {
     signal,
   });
 }
 
 export function createPainRecord(input: PainRecordInput) {
   const parsed = painRecordCreateSchema.parse(input);
-  return request("/pain-records", painRecordSchema, {
+  return request("/me/pain-entries", painRecordSchema, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
