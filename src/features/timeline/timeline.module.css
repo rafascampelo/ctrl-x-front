@@ -124,9 +124,7 @@
   height: 5px;
 }
 
-.dotPain,
-.dotExercise,
-.dotRecord {
+.dotPain {
   width: 5px;
   height: 5px;
   border-radius: 50%;
@@ -136,17 +134,7 @@
   background: var(--pain-moderate);
 }
 
-.dotExercise {
-  background: var(--color-primary);
-}
-
-.dotRecord {
-  background: var(--color-accent);
-}
-
-.daySelected .dotPain,
-.daySelected .dotExercise,
-.daySelected .dotRecord {
+.daySelected .dotPain {
   background: #ffffff;
 }
 

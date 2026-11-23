@@ -6,24 +6,18 @@ import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import ui from "@/components/ui/ui.module.css";
 import { useCare, useSessionError } from "@/features/care/care-area";
-import { CareError, CareLoading, Feedback } from "@/features/care/states";
-import { ApiError } from "@/services/api-client";
+import { CareError, CareLoading } from "@/features/care/states";
 import { getPatientCalendar, getPatientTimeline } from "@/services/timeline";
 import { formatBodyRegion, getPainSeverity } from "@/types/pain";
 import {
   categoryLabels,
+  historyMonthKey,
   type CalendarDaySummary,
   type TimelineCategory,
 } from "@/types/timeline";
 import styles from "./timeline.module.css";
 
 const WEEKDAYS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
-
-function toMonthKey(date: Date) {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  return `${y}-${m}`;
-}
 
 function toDateKey(date: Date) {
   const y = date.getFullYear();
@@ -32,11 +26,11 @@ function toDateKey(date: Date) {
   return `${y}-${m}-${d}`;
 }
 
-function formatEventTime(iso: string) {
+function formatEventTime(iso: string, timezone: string) {
   return new Intl.DateTimeFormat("pt-BR", {
     dateStyle: "medium",
     timeStyle: "short",
-    timeZone: "America/Sao_Paulo",
+    timeZone: timezone,
   }).format(new Date(iso));
 }
 
@@ -52,16 +46,17 @@ export function PatientTimeline() {
   );
   const [category, setCategory] = useState<TimelineCategory | "all">("all");
 
-  const monthKey = toMonthKey(currentMonthDate);
+  const monthKey = historyMonthKey(currentMonthDate);
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   const calendarQuery = useQuery({
-    queryKey: ["care", user.id, "calendar", monthKey],
-    queryFn: ({ signal }) => getPatientCalendar(monthKey, signal),
+    queryKey: ["care", user.id, "history", "calendar", monthKey, timezone],
+    queryFn: ({ signal }) => getPatientCalendar(monthKey, timezone, signal),
     gcTime: 0,
   });
 
   const timelineQuery = useInfiniteQuery({
-    queryKey: ["care", user.id, "timeline", { category, selectedDate }],
+    queryKey: ["care", user.id, "history", "timeline", { category, monthKey, selectedDate, timezone }],
     initialPageParam: undefined as string | undefined,
     queryFn: ({ pageParam, signal }) =>
       getPatientTimeline(
@@ -69,6 +64,8 @@ export function PatientTimeline() {
           cursor: pageParam,
           category,
           date: selectedDate,
+          month: monthKey,
+          timezone,
         },
         signal,
       ),
@@ -76,13 +73,8 @@ export function PatientTimeline() {
     gcTime: 0,
   });
 
-  useSessionError(calendarQuery.error || timelineQuery.error);
-
-  const isEndpointMissing =
-    (calendarQuery.error instanceof ApiError &&
-      calendarQuery.error.status === 404) ||
-    (timelineQuery.error instanceof ApiError &&
-      timelineQuery.error.status === 404);
+  useSessionError(calendarQuery.error);
+  useSessionError(timelineQuery.error);
 
   const daySummaryMap = useMemo(() => {
     const map = new Map<string, CalendarDaySummary>();
@@ -122,6 +114,7 @@ export function PatientTimeline() {
   ];
 
   function shiftMonth(delta: number) {
+    setSelectedDate(undefined);
     setCurrentMonthDate(
       (prev) => new Date(prev.getFullYear(), prev.getMonth() + delta, 1),
     );
@@ -153,19 +146,31 @@ export function PatientTimeline() {
           </div>
         </div>
 
+        {calendarQuery.isPending && <CareLoading title="Carregando calendário" />}
+        {calendarQuery.isError && (
+          <CareError
+            error={calendarQuery.error}
+            retry={() => void calendarQuery.refetch()}
+            fetching={calendarQuery.isFetching}
+          />
+        )}
+        {calendarQuery.isSuccess && calendarQuery.data.days.length === 0 && (
+          <p className={styles.subtitle}>Nenhum registro neste mês.</p>
+        )}
+
         <div className={styles.weekdays} aria-hidden="true">
           {WEEKDAYS.map((day) => (
             <span key={day}>{day}</span>
           ))}
         </div>
 
-        <div className={styles.daysGrid} role="grid">
+        <div className={styles.daysGrid} role="group" aria-label="Dias do mês">
           {calendarCells.map((cell, idx) => {
             if (!cell) {
               return <div key={`empty-${idx}`} className={styles.emptyCell} />;
             }
 
-            const summary = daySummaryMap.get(cell.dateKey);
+            const painCount = daySummaryMap.get(cell.dateKey)?.pain_count ?? 0;
             const isSelected = selectedDate === cell.dateKey;
             const isToday = todayKey === cell.dateKey;
 
@@ -174,7 +179,8 @@ export function PatientTimeline() {
                 key={cell.dateKey}
                 type="button"
                 aria-pressed={isSelected}
-                aria-label={`Dia ${cell.day}`}
+                aria-current={isToday ? "date" : undefined}
+                aria-label={["Dia " + cell.day, painCount ? painCount + (painCount === 1 ? " registro de dor" : " registros de dor") : ""].filter(Boolean).join(", ")}
                 className={[
                   styles.dayCell,
                   isToday ? styles.dayToday : "",
@@ -188,15 +194,7 @@ export function PatientTimeline() {
               >
                 <span>{cell.day}</span>
                 <span className={styles.dotsRow} aria-hidden="true">
-                  {summary && summary.pain_count > 0 && (
-                    <span className={styles.dotPain} />
-                  )}
-                  {summary && summary.exercise_count > 0 && (
-                    <span className={styles.dotExercise} />
-                  )}
-                  {summary && summary.clinical_record_count > 0 && (
-                    <span className={styles.dotRecord} />
-                  )}
+                  {painCount > 0 && <span className={styles.dotPain} />}
                 </span>
               </button>
             );
@@ -206,12 +204,6 @@ export function PatientTimeline() {
         <div className={styles.legend}>
           <span className={styles.legendItem}>
             <span className={styles.dotPain} /> Dor
-          </span>
-          <span className={styles.legendItem}>
-            <span className={styles.dotExercise} /> Exercícios
-          </span>
-          <span className={styles.legendItem}>
-            <span className={styles.dotRecord} /> Prontuário
           </span>
         </div>
 
@@ -234,16 +226,15 @@ export function PatientTimeline() {
             <h2 id="timeline-title">
               {selectedDate
                 ? `Eventos de ${selectedDate.split("-").reverse().join("/")}`
-                : "Linha do tempo completa"}
+                : "Eventos do mês"}
             </h2>
             <p className={styles.subtitle}>
-              Projeção unificada dos seus registros de dor, exercícios e
-              atendimentos.
+              Horários no fuso {timezone.replaceAll("_", " ")}.
             </p>
           </div>
           <Button
             variant="secondary"
-            disabled={timelineQuery.isFetching}
+            disabled={timelineQuery.isFetching || calendarQuery.isFetching}
             onClick={() => {
               void calendarQuery.refetch();
               void timelineQuery.refetch();
@@ -253,29 +244,22 @@ export function PatientTimeline() {
           </Button>
         </div>
 
-        {isEndpointMissing && (
-          <Feedback message="A interface de Calendário e Timeline está pronta e aguardando a ativação das rotas /api/v1/me/timeline e /api/v1/me/calendar no back-end." />
-        )}
-
         {/* Filtros por Categoria */}
         <div
           className={styles.categoryBar}
-          role="tablist"
+          role="group"
           aria-label="Filtrar eventos por categoria"
         >
           {(
             [
               ["all", "Todos"],
               ["pain", "Diário de dor"],
-              ["exercise", "Exercícios"],
-              ["clinical_record", "Prontuários"],
             ] as const
           ).map(([key, label]) => (
             <button
               key={key}
               type="button"
-              role="tab"
-              aria-selected={category === key}
+              aria-pressed={category === key}
               className={[
                 styles.categoryTab,
                 category === key ? styles.categoryTabActive : "",
@@ -289,7 +273,7 @@ export function PatientTimeline() {
 
         {timelineQuery.isPending ? (
           <CareLoading title="Carregando linha do tempo" />
-        ) : timelineQuery.isError && !isEndpointMissing ? (
+        ) : timelineQuery.isError ? (
           <CareError
             error={timelineQuery.error}
             retry={() => void timelineQuery.refetch()}
@@ -329,8 +313,8 @@ export function PatientTimeline() {
                       >
                         {categoryLabels[event.category]}
                       </span>
-                      <time className={styles.eventTime}>
-                        {formatEventTime(event.occurred_at)}
+                      <time className={styles.eventTime} dateTime={event.occurred_at}>
+                        {formatEventTime(event.occurred_at, timezone)}
                       </time>
                     </div>
 

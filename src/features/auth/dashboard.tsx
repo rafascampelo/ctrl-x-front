@@ -7,6 +7,9 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ContentState } from "@/components/ui/content-state";
 import { LogoutButton } from "./logout-button";
+import { CareError, CareLoading } from "@/features/care/states";
+import { getPatientCalendar } from "@/services/timeline";
+import { historyMonthKey } from "@/types/timeline";
 import { getAllLinks, getPatients, getProfile } from "@/services/care";
 import ui from "@/components/ui/ui.module.css";
 import styles from "./dashboard.module.css";
@@ -55,6 +58,16 @@ export function Dashboard({ role }: { role: User["role"] }) {
     queryKey: ["care", userId, "patients-preview"],
     queryFn: ({ signal }) => getPatients(undefined, signal),
     enabled: !!userId && isProfessional,
+    gcTime: 0,
+  });
+
+  const now = new Date();
+  const month = historyMonthKey(now);
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const painSummary = useQuery({
+    queryKey: ["care", userId, "history", "calendar", month, timezone],
+    queryFn: ({ signal }) => getPatientCalendar(month, timezone, signal),
+    enabled: !!userId && isValidRole && role === "PATIENT",
     gcTime: 0,
   });
 
@@ -223,6 +236,50 @@ export function Dashboard({ role }: { role: User["role"] }) {
 
       <div className={styles.layout}>
         <div className={styles.primaryColumn}>
+          {patient && (
+            <section className={styles.surface} aria-labelledby="pain-summary-title">
+              <div className={styles.surfaceHeader}>
+                <div>
+                  <h2 id="pain-summary-title">Sua dor neste mês</h2>
+                  <p className={styles.metricHint}>
+                    {new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric" }).format(now)}
+                  </p>
+                </div>
+                <Link href="/patient/timeline" className={ui.button}>
+                  Abrir calendário
+                </Link>
+              </div>
+              {painSummary.isPending ? (
+                <CareLoading title="Carregando resumo de dor" />
+              ) : painSummary.isError ? (
+                <CareError
+                  error={painSummary.error}
+                  fetching={painSummary.isFetching}
+                  retry={() => void painSummary.refetch()}
+                />
+              ) : painSummary.data.pain.count === 0 ? (
+                <p className={styles.mutedText}>
+                  Nenhum registro de dor neste mês.{" "}
+                  <Link href="/patient/pain-diary">Registrar no diário</Link>
+                </p>
+              ) : (
+                <dl className={styles.painMetrics}>
+                  <div>
+                    <dt>Registros</dt>
+                    <dd>{painSummary.data.pain.count}</dd>
+                  </div>
+                  <div>
+                    <dt>Intensidade média</dt>
+                    <dd>{painSummary.data.pain.average_intensity?.toLocaleString("pt-BR")}/10</dd>
+                  </div>
+                  <div>
+                    <dt>Última intensidade</dt>
+                    <dd>{painSummary.data.pain.latest_intensity}/10</dd>
+                  </div>
+                </dl>
+              )}
+            </section>
+          )}
           <section
             className={styles.surface}
             aria-labelledby="care-status-title"
