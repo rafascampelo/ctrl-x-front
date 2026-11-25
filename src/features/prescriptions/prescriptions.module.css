@@ -262,6 +262,15 @@
   color: var(--color-primary);
 }
 
+.completedButton:disabled {
+  background: var(--color-surface-subtle);
+  border-color: var(--color-border);
+  color: var(--color-muted);
+  box-shadow: none;
+  opacity: 1;
+  cursor: default;
+}
+
 .emptyState {
   padding: 2.25rem 1.5rem;
   text-align: center;
