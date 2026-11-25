@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import type { ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
 import { authRequest, dashboardPath } from "@/features/auth/auth";
 import { LogoutButton } from "@/features/auth/logout-button";
 import styles from "./app-shell.module.css";
@@ -19,6 +20,19 @@ export function AppShell({ children }: { children: ReactNode }) {
     ? "/patient/dashboard"
     : "/professional/dashboard";
   const patient = pathname.startsWith("/patient/");
+  const professionalPatientRoute = !patient
+    ? pathname.match(/^\/professional\/patients\/([^/]+)(?:\/(?:records|prescriptions|documents))?\/?$/)
+    : null;
+  const backHref = professionalPatientRoute
+    ? professionalPatientRoute[0].includes("/records") ||
+      professionalPatientRoute[0].includes("/prescriptions") ||
+      professionalPatientRoute[0].includes("/documents")
+      ? `/professional/patients/${professionalPatientRoute[1]}`
+      : "/professional/patients"
+    : null;
+  const backLabel = backHref?.includes("/patients/")
+    ? "Voltar para ficha do paciente"
+    : "Voltar para meus pacientes";
   const workspaceSession = useQuery({
     queryKey: ["auth", "me"],
     queryFn: () => authRequest("me"),
@@ -118,6 +132,34 @@ export function AppShell({ children }: { children: ReactNode }) {
               ))}
             </div>
           </nav>
+        )}
+        {validWorkspace && backHref && (
+          <div className={styles.backRow}>
+            <Button
+              type="button"
+              variant="secondary"
+              className={styles.backButton}
+              aria-label={backLabel}
+              title={backLabel}
+              onClick={() => {
+                if (window.history.length > 1) router.back();
+                else router.replace(backHref);
+              }}
+            >
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M19 12H5" />
+                <path d="m12 19-7-7 7-7" />
+              </svg>
+            </Button>
+          </div>
         )}
       </header>
 

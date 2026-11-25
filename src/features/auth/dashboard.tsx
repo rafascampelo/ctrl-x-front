@@ -9,10 +9,80 @@ import { ContentState } from "@/components/ui/content-state";
 import { CareError, CareLoading } from "@/features/care/states";
 import { getPatientCalendar, getPatientTimeline } from "@/services/timeline";
 import { historyMonthKey } from "@/types/timeline";
-import { getAllLinks, getPatients, getProfile } from "@/services/care";
+import { getAllLinks, getAllPatients, getProfile } from "@/services/care";
+import { getAllProfessionalPatientPrescriptions } from "@/services/prescriptions";
+import type { PatientProfile } from "@/types/care";
 import ui from "@/components/ui/ui.module.css";
 import styles from "./dashboard.module.css";
 import { authRequest, AuthError, dashboardPath, type User } from "./auth";
+
+type ExerciseMonitorPatient = {
+  id: string;
+  full_name: string;
+  session_count: number;
+  latest_completion: string;
+};
+
+function dateKeyAtTimeZone(date: Date, timeZone: string) {
+  const parts = new Map(
+    new Intl.DateTimeFormat("en-US", {
+      timeZone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    })
+      .formatToParts(date)
+      .map((part) => [part.type, part.value]),
+  );
+  return `${parts.get("year")}-${parts.get("month")}-${parts.get("day")}`;
+}
+
+async function getTodayExerciseActivity(
+  patients: PatientProfile[],
+  todayKey: string,
+  timeZone: string,
+  signal?: AbortSignal,
+) {
+  const activity: ExerciseMonitorPatient[] = [];
+  let nextPatient = 0;
+
+  async function worker() {
+    while (nextPatient < patients.length) {
+      const patient = patients[nextPatient++];
+      if (!patient) continue;
+
+      const prescriptions = await getAllProfessionalPatientPrescriptions(
+        patient.id,
+        signal,
+      );
+      const todayCompletions = prescriptions.flatMap((prescription) =>
+        prescription.completions
+          .filter(
+            (completion) =>
+              dateKeyAtTimeZone(new Date(completion.completed_at), timeZone) ===
+              todayKey,
+          )
+          .map((completion) => completion.completed_at),
+      );
+
+      if (todayCompletions.length) {
+        activity.push({
+          id: patient.id,
+          full_name: patient.full_name,
+          session_count: todayCompletions.length,
+          latest_completion: todayCompletions.sort().at(-1)!,
+        });
+      }
+    }
+  }
+
+  await Promise.all(
+    Array.from({ length: Math.min(4, patients.length) }, () => worker()),
+  );
+  return activity.sort((a, b) =>
+    b.latest_completion.localeCompare(a.latest_completion),
+  );
+}
 
 export function Dashboard({ role }: { role: User["role"] }) {
   const router = useRouter();
@@ -53,8 +123,8 @@ export function Dashboard({ role }: { role: User["role"] }) {
   const isProfessional = profile.data?.role === "PROFESSIONAL";
 
   const patientsQuery = useQuery({
-    queryKey: ["care", userId, "patients-preview"],
-    queryFn: ({ signal }) => getPatients(undefined, signal),
+    queryKey: ["care", userId, "patients"],
+    queryFn: ({ signal }) => getAllPatients(signal),
     enabled: !!userId && isProfessional,
     gcTime: 0,
   });
@@ -67,6 +137,32 @@ export function Dashboard({ role }: { role: User["role"] }) {
   ].join("-");
   const month = historyMonthKey(now);
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const patientIds = patientsQuery.data?.map((patient) => patient.id) ?? [];
+  const exerciseMonitoring = useQuery({
+    queryKey: [
+      "care",
+      userId,
+      "exercise-monitoring",
+      todayKey,
+      timezone,
+      patientIds,
+    ],
+    queryFn: ({ signal }) =>
+      getTodayExerciseActivity(
+        patientsQuery.data ?? [],
+        todayKey,
+        timezone,
+        signal,
+      ),
+    enabled:
+      !!userId &&
+      isProfessional &&
+      !patientsQuery.isPending &&
+      !patientsQuery.isError,
+    staleTime: 60_000,
+    refetchInterval: 300_000,
+    gcTime: 0,
+  });
   const calendarSummary = useQuery({
     queryKey: ["care", userId, "history", "calendar", month, timezone],
     queryFn: ({ signal }) => getPatientCalendar(month, timezone, signal),
@@ -407,7 +503,7 @@ export function Dashboard({ role }: { role: User["role"] }) {
                   ? activeLinks.length > 0
                     ? "Gerenciar vínculo"
                     : "Conectar fisioterapeuta"
-                  : "Abrir meus pacientes"}
+                  : "Ver meus pacientes"}
               </Link>
             </div>
 
@@ -436,9 +532,17 @@ export function Dashboard({ role }: { role: User["role"] }) {
                   </p>
                 </div>
               )
-            ) : patientsQuery.data?.items.length ? (
+            ) : patientsQuery.isPending ? (
+              <CareLoading title="Carregando pacientes vinculados" />
+            ) : patientsQuery.isError ? (
+              <CareError
+                error={patientsQuery.error}
+                fetching={patientsQuery.isFetching}
+                retry={() => void patientsQuery.refetch()}
+              />
+            ) : patientsQuery.data.length > 0 ? (
               <ul className={styles.patientList}>
-                {patientsQuery.data.items.slice(0, 4).map((p) => (
+                {patientsQuery.data.slice(0, 4).map((p) => (
                   <li key={p.id} className={styles.patientRow}>
                     <div>
                       <strong>{p.full_name}</strong>
@@ -466,64 +570,123 @@ export function Dashboard({ role }: { role: User["role"] }) {
             )}
           </section>
 
-          <section className={styles.surface} aria-labelledby="roadmap-title">
-            <p className={ui.eyebrow}>Acesso rápido</p>
-            <h2 id="roadmap-title">Módulos clínicos do Ctrl X</h2>
-            <p className={styles.mutedText}>
-              Acesse diretamente qualquer ferramenta do seu acompanhamento:
-            </p>
-            <div className={styles.modulesGrid}>
-              <Link
-                href={
-                  patient ? "/patient/pain-diary" : "/professional/patients"
-                }
-                className={styles.moduleItem}
-                style={{ textDecoration: "none" }}
-              >
-                <span className={styles.moduleTag}>Módulo 04 · Dor</span>
-                <h3>
-                  {patient ? "Diário de Dor (EVA)" : "Prontuários Clínicos"}
-                </h3>
-                <p>
-                  {patient
-                    ? "Registre intensidade de 0 a 10 e região corporal."
-                    : "Avaliações estruturadas, rascunhos e adendos."}
-                </p>
-              </Link>
+          {patient ? (
+            <section className={styles.surface} aria-labelledby="roadmap-title">
+              <p className={ui.eyebrow}>Acesso rápido</p>
+              <h2 id="roadmap-title">Módulos clínicos do Ctrl X</h2>
+              <p className={styles.mutedText}>
+                Acesse diretamente qualquer ferramenta do seu acompanhamento:
+              </p>
+              <div className={styles.modulesGrid}>
+                <Link
+                  href="/patient/pain-diary"
+                  className={styles.moduleItem}
+                  style={{ textDecoration: "none" }}
+                >
+                  <span className={styles.moduleTag}>Módulo 04 · Dor</span>
+                  <h3>Diário de Dor (EVA)</h3>
+                  <p>Registre intensidade de 0 a 10 e região corporal.</p>
+                </Link>
 
-              <Link
-                href={
-                  patient ? "/patient/exercises" : "/professional/patients"
-                }
-                className={styles.moduleItem}
-                style={{ textDecoration: "none" }}
-              >
-                <span className={styles.moduleTag}>Módulo 07 · Reabilitação</span>
-                <h3>
-                  {patient ? "Exercícios Prescritos" : "Prescrição de Rotinas"}
-                </h3>
-                <p>
-                  {patient
-                    ? "Consulte séries, repetições e marque treinos concluídos."
-                    : "Monte treinos personalizados para pacientes ativos."}
-                </p>
-              </Link>
+                <Link
+                  href="/patient/exercises"
+                  className={styles.moduleItem}
+                  style={{ textDecoration: "none" }}
+                >
+                  <span className={styles.moduleTag}>Módulo 07 · Reabilitação</span>
+                  <h3>Exercícios Prescritos</h3>
+                  <p>Consulte séries, repetições e marque treinos concluídos.</p>
+                </Link>
 
-              <Link
-                href={
-                  patient ? "/patient/documents" : "/professional/patients"
-                }
-                className={styles.moduleItem}
-                style={{ textDecoration: "none" }}
-              >
-                <span className={styles.moduleTag}>Módulo 09 · OCR</span>
-                <h3>Documentos &amp; Exames</h3>
-                <p>
-                  Envio privado de laudos e validação humana do texto extraído.
+                <Link
+                  href="/patient/documents"
+                  className={styles.moduleItem}
+                  style={{ textDecoration: "none" }}
+                >
+                  <span className={styles.moduleTag}>Módulo 09 · OCR</span>
+                  <h3>Documentos &amp; Exames</h3>
+                  <p>
+                    Envio privado de laudos e validação humana do texto extraído.
+                  </p>
+                </Link>
+              </div>
+            </section>
+          ) : (
+            <section
+              className={styles.surface}
+              aria-labelledby="exercise-monitor-title"
+            >
+              <div className={styles.surfaceHeader}>
+                <div>
+                  <p className={ui.eyebrow}>Atividade do dia</p>
+                  <h2 id="exercise-monitor-title">
+                    Exercícios registrados hoje
+                  </h2>
+                  <p className={styles.mutedText}>
+                    Pacientes com sessões concluídas nas rotinas prescritas.
+                  </p>
+                </div>
+                <Button
+                  variant="secondary"
+                  disabled={
+                    patientsQuery.isPending || exerciseMonitoring.isFetching
+                  }
+                  onClick={() => void exerciseMonitoring.refetch()}
+                >
+                  Atualizar
+                </Button>
+              </div>
+
+              {patientsQuery.isPending ? (
+                <CareLoading title="Carregando pacientes vinculados" />
+              ) : patientsQuery.isError ? (
+                <CareError
+                  error={patientsQuery.error}
+                  fetching={patientsQuery.isFetching}
+                  retry={() => void patientsQuery.refetch()}
+                />
+              ) : patientsQuery.data.length === 0 ? (
+                <p className={styles.monitorEmpty}>
+                  Vincule pacientes para acompanhar os exercícios registrados.
                 </p>
-              </Link>
-            </div>
-          </section>
+              ) : exerciseMonitoring.isPending ? (
+                <CareLoading title="Verificando sessões de exercícios" />
+              ) : exerciseMonitoring.isError ? (
+                <CareError
+                  error={exerciseMonitoring.error}
+                  fetching={exerciseMonitoring.isFetching}
+                  retry={() => void exerciseMonitoring.refetch()}
+                />
+              ) : exerciseMonitoring.data.length > 0 ? (
+                <ul className={styles.monitorList}>
+                  {exerciseMonitoring.data.map((item) => (
+                    <li key={item.id} className={styles.monitorRow}>
+                      <div>
+                        <strong>{item.full_name}</strong>
+                        <span>
+                          {item.session_count === 1
+                            ? "1 sessão concluída"
+                            : `${item.session_count} sessões concluídas`}
+                        </span>
+                      </div>
+                      <time dateTime={item.latest_completion}>
+                        Último registro às{" "}
+                        {new Intl.DateTimeFormat("pt-BR", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          timeZone: timezone,
+                        }).format(new Date(item.latest_completion))}
+                      </time>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className={styles.monitorEmpty}>
+                  Ainda não há sessões concluídas registradas hoje.
+                </p>
+              )}
+            </section>
+          )}
         </div>
 
         <aside className={styles.account} aria-labelledby="account-title">

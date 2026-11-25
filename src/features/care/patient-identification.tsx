@@ -71,10 +71,6 @@ export function PatientIdentification({ patientId }: { patientId: string }) {
           </Link>
         </div>
       </section>
-
-      <div>
-        <Link href="/professional/patients">← Voltar para meus pacientes</Link>
-      </div>
     </div>
   );
 }
