@@ -30,9 +30,7 @@ export class AuthError extends Error {
 }
 
 export async function authRequest(path: "login" | "register" | "me", body?: object): Promise<User> {
-  const base = process.env.NEXT_PUBLIC_API_URL;
-  if (!base) throw new Error("Endereço da API não configurado.");
-  const response = await fetch(`${base.replace(/\/$/, "")}/auth/${path}`, {
+  const response = await fetch(`/api/v1/auth/${path}`, {
     method: body ? "POST" : "GET", credentials: "include", cache: "no-store",
     headers: body ? { "Content-Type": "application/json" } : undefined,
     body: body ? JSON.stringify(body) : undefined,
@@ -53,9 +51,7 @@ export function dashboardPath(role: User["role"]) {
 }
 
 export async function logout(): Promise<void> {
-  const base = process.env.NEXT_PUBLIC_API_URL;
-  if (!base) throw new Error("Endereço da API não configurado.");
-  await fetchJson(`${base.replace(/\/$/, "")}/auth/logout`, z.undefined(), {
+  await fetchJson(`/api/v1/auth/logout`, z.undefined(), {
     method: "POST",
     credentials: "include",
   });

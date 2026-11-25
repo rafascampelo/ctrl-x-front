@@ -7,18 +7,12 @@ import {
   type VerifyOcrInput,
 } from "@/types/documents";
 
-function getBaseUrl() {
-  const base = process.env.NEXT_PUBLIC_API_URL;
-  if (!base) throw new Error("Endereço da API não configurado.");
-  return base.replace(/\/$/, "");
-}
-
 function request<T>(
   path: string,
   schema: ZodType<T>,
   options: RequestInit = {},
 ) {
-  return fetchJson(`${getBaseUrl()}${path}`, schema, {
+  return fetchJson(`/api/v1${path}`, schema, {
     ...options,
     credentials: "include",
   });
@@ -69,5 +63,5 @@ export function verifyDocumentOcr(documentId: string, input: VerifyOcrInput) {
 
 export function getDocumentDownloadUrl(documentId: string) {
   const id = z.string().uuid().parse(documentId);
-  return `${getBaseUrl()}/documents/${id}/download`;
+  return `/api/v1/documents/${id}/download`;
 }

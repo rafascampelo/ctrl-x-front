@@ -17,9 +17,7 @@ function request<T>(
   schema: ZodType<T>,
   options: RequestInit = {},
 ) {
-  const base = process.env.NEXT_PUBLIC_API_URL;
-  if (!base) throw new Error("Endereço da API não configurado.");
-  return fetchJson(`${base.replace(/\/$/, "")}${path}`, schema, {
+  return fetchJson(`/api/v1${path}`, schema, {
     ...options,
     credentials: "include",
   });

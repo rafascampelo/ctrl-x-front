@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { getPatientCalendar, getPatientTimeline } from "../src/services/timeline.ts";
 
-process.env.NEXT_PUBLIC_API_URL = "http://localhost:8000/api/v1";
 
 test("timeline sends a local date, category and opaque cursor", async (t) => {
   const cursor = "2026-11-01T03:00:00+00:00|10000000-0000-4000-8000-000000000001";
@@ -17,7 +16,7 @@ test("timeline sends a local date, category and opaque cursor", async (t) => {
   });
   assert.equal(page.next_cursor, cursor);
   const [input, init] = request.mock.calls[0].arguments as unknown as [string, RequestInit];
-  const url = new URL(input);
+  const url = new URL(input, "https://app.example.test");
   assert.equal(url.pathname, "/api/v1/me/timeline");
   assert.deepEqual(Object.fromEntries(url.searchParams), {
     limit: "25",
@@ -44,7 +43,7 @@ test("calendar preserves zero intensity and its local monthly totals", async (t)
   assert.deepEqual(result.pain, fixture.pain);
   assert.deepEqual(result.days.map((day) => day.clinical_record_count), [0, 2]);
   const [input] = request.mock.calls[0].arguments as unknown as [string];
-  const url = new URL(input);
+  const url = new URL(input, "https://app.example.test");
   assert.equal(url.pathname, "/api/v1/me/calendar");
   assert.deepEqual(Object.fromEntries(url.searchParams), {
     month: fixture.month, timezone: fixture.timezone,

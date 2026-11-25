@@ -44,7 +44,6 @@ export const pendingLink = {
   revoked_at: null,
   closed_at: null,
 };
-process.env.NEXT_PUBLIC_API_URL = "http://localhost:8000/api/v1";
 
 test("profiles support legacy CREFITO and require paired valid fields when editing", () => {
   assert.equal(profileSchema.safeParse(patient).success, true);
@@ -139,7 +138,7 @@ test("profile PATCH sends only editable fields and preserves the input on failur
     globalThis,
     "fetch",
     async (url: string, options: RequestInit) => {
-      assert.equal(url, "http://localhost:8000/api/v1/me");
+      assert.equal(url, "/api/v1/me");
       assert.equal(options.method, "PATCH");
       assert.deepEqual(JSON.parse(String(options.body)), {
         full_name: "Nome atualizado",
