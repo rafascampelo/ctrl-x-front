@@ -65,7 +65,8 @@ function renderArea(
     role: profile.role,
     email: "synthetic@example.test",
   };
-  client.setQueryData(["care-session"], user);
+  client.setQueryDefaults(["auth", "me"], { staleTime: Infinity });
+  client.setQueryData(["auth", "me"], user);
   client.setQueryData(["care", user.id, "profile"], profile);
   client.setQueryDefaults(["care", user.id, "links"], { staleTime: Infinity });
   client.setQueryData(["care", user.id, "links"], links);
