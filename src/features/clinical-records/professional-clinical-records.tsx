@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -302,12 +301,6 @@ export function ProfessionalClinicalRecords({
 
   return (
     <div className={styles.stack}>
-      <div>
-        <Link href={`/professional/patients/${patientId}`}>
-          ← Voltar para ficha de {patientQuery.data.full_name}
-        </Link>
-      </div>
-
       <div className={styles.layout}>
         {/* Coluna Esquerda: Editor de Prontuário */}
         <section className={styles.surface} aria-labelledby="editor-title">

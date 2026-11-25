@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -129,12 +128,6 @@ export function ProfessionalPrescriptions({
 
   return (
     <div className={styles.stack}>
-      <div>
-        <Link href={`/professional/patients/${patientId}`}>
-          ← Voltar para ficha de {patientQuery.data.full_name}
-        </Link>
-      </div>
-
       <div className={styles.splitGrid}>
         {/* Formulário de Nova Prescrição */}
         <section className={styles.surface} aria-labelledby="new-rx-title">

@@ -63,6 +63,32 @@ export function listProfessionalPatientPrescriptions(
   );
 }
 
+export async function getAllProfessionalPatientPrescriptions(
+  patientId: string,
+  signal?: AbortSignal,
+) {
+  const items = [];
+  const seen = new Set<string>();
+  let cursor: string | undefined;
+  do {
+    const page = await listProfessionalPatientPrescriptions(
+      patientId,
+      cursor,
+      signal,
+    );
+    items.push(...page.items);
+    if (!page.next_cursor) break;
+    if (seen.has(page.next_cursor)) {
+      throw new Error(
+        "N\u00e3o foi poss\u00edvel concluir a leitura das prescri\u00e7\u00f5es.",
+      );
+    }
+    seen.add(page.next_cursor);
+    cursor = page.next_cursor;
+  } while (cursor);
+  return [...new Map(items.map((item) => [item.id, item])).values()];
+}
+
 export function createPatientPrescription(
   patientId: string,
   input: PrescriptionInput,

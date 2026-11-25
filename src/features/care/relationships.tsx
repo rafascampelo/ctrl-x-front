@@ -11,6 +11,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import ui from "@/components/ui/ui.module.css";
 import { ApiError } from "@/services/api-client";
 import {
   getAllLinks,
@@ -174,9 +175,11 @@ export function PatientsList() {
                 <h3>{patient.full_name}</h3>
                 <p className={styles.muted}>Paciente vinculado</p>
               </div>
-              <Link href={`/professional/patients/${patient.id}`}>
-                Ver identificação
-                <span className={styles.muted}> de {patient.full_name}</span>
+              <Link
+                href={`/professional/patients/${patient.id}`}
+                className={[ui.button, ui.secondary, styles.patientAction].join(" ")}
+              >
+                Ver identificação de {patient.full_name}
               </Link>
             </li>
           ))}
