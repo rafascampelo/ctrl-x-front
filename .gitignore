@@ -10,3 +10,4 @@ npm-debug.log*
 .vercel/
 deployment-url.txt
 health.json
+/test-results/
