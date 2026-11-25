@@ -27,7 +27,7 @@ A concorrência serializa os deployments sem cancelar uma publicação em andame
 | --- | --- | --- |
 | `VERCEL_TOKEN` | GitHub → Settings → Environments → production → Environment secrets | Token autorizado a publicar no projeto/time |
 | `VERCEL_ORG_ID` | Mesmo local | ID do time/proprietário do projeto |
-| `NEXT_PUBLIC_API_URL` | Vercel → Project → Settings → Environment Variables → Production | URL HTTPS real do backend com `/api/v1`, usada por autenticação, serviços e indicador de saúde da API |
+| `API_URL` | Vercel → Project → Settings → Environment Variables → Production | URL HTTPS real do backend com `/api/v1`, usada pelo proxy do Next.js (fallback de compatibilidade: `NEXT_PUBLIC_API_URL`) |
 | `CI_API_URL` | GitHub → Settings → Environments → `ci` → Environment variables | URL local sintética, como `http://127.0.0.1:8000/api/v1`, usada apenas na CI. Mantenha o ambiente sem acesso a segredos. |
 
 Confira o ORG ID em Team Settings → General ou no `orgId` de `.vercel/project.json` obtido ao vincular o projeto correto. Nunca coloque tokens em NEXT_PUBLIC, arquivos versionados ou logs. O token só é injetado nos steps da CLI.

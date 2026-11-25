@@ -10,7 +10,6 @@ import {
   watchSession,
 } from "../src/services/session.ts";
 
-process.env.NEXT_PUBLIC_API_URL = "http://localhost:8000/api/v1";
 
 function observe(t: TestContext, pathname: string, broadcastChannel?: object) {
   t.mock.timers.enable({ apis: ["setTimeout", "Date"], now: 0 });
