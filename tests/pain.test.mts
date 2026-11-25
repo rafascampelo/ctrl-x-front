@@ -3,7 +3,6 @@ import { test } from "node:test";
 import { createPainRecord, listPainRecords } from "../src/services/pain.ts";
 import { ApiError } from "../src/services/api-client.ts";
 
-process.env.NEXT_PUBLIC_API_URL = "http://localhost:8000/api/v1/";
 process.env.TZ = "America/New_York";
 
 const entry = {
@@ -23,7 +22,7 @@ test("creates a diary entry with the patient's cookie and valid zero intensity",
   const saved = await createPainRecord({ region: " lombar ", intensity: 0, description: " " });
   assert.equal(saved.occurred_at, entry.occurred_at);
   const [url, options] = fetchMock.mock.calls[0].arguments as unknown as [string, RequestInit];
-  assert.equal(url, "http://localhost:8000/api/v1/me/pain-entries");
+  assert.equal(url, "/api/v1/me/pain-entries");
   assert.equal(options.credentials, "include");
   assert.equal(options.method, "POST");
   assert.equal(options.cache, "no-store");
@@ -43,7 +42,7 @@ test("lists the patient's own entries using the opaque cursor and local date bou
   assert.equal(page.items[0].occurred_at, entry.occurred_at);
   assert.equal(page.next_cursor, cursor);
   const [url, options] = fetchMock.mock.calls[0].arguments as unknown as [string, RequestInit];
-  const parsed = new URL(url);
+  const parsed = new URL(url, "https://app.example.test");
   assert.equal(parsed.pathname, "/api/v1/me/pain-entries");
   assert.deepEqual(Object.fromEntries(parsed.searchParams), {
     limit: "20",

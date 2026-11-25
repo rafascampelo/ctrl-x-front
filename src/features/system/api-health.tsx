@@ -4,14 +4,13 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { fetchJson } from "@/services/api-client";
 import { healthSchema } from "@/types/health";
-import { getApiHealthUrl } from "./api-health-url";
 import styles from "./api-health.module.css";
 
 export function ApiHealth() {
   const { isPending, isError, isFetching, refetch } = useQuery({
     queryKey: ["system", "health"],
     queryFn: ({ signal }) =>
-      fetchJson(getApiHealthUrl(), healthSchema, { signal }),
+      fetchJson("/api/v1/health", healthSchema, { signal }),
     staleTime: 30_000,
     refetchOnWindowFocus: false,
   });

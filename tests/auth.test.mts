@@ -12,9 +12,8 @@ test("registration validates password, confirmation and required name", () => {
 });
 
 test("logout revokes the cookie session through the API and accepts HTTP 204", async (context) => {
-  process.env.NEXT_PUBLIC_API_URL = "http://localhost:8000/api/v1/";
   context.mock.method(globalThis, "fetch", async (url: string, options: RequestInit) => {
-    assert.equal(url, "http://localhost:8000/api/v1/auth/logout");
+    assert.equal(url, "/api/v1/auth/logout");
     assert.equal(options.method, "POST");
     assert.equal(options.credentials, "include");
     assert.equal(options.cache, "no-store");
@@ -24,15 +23,13 @@ test("logout revokes the cookie session through the API and accepts HTTP 204", a
 });
 
 test("logout propagates backend failures so the UI can offer another attempt", async (context) => {
-  process.env.NEXT_PUBLIC_API_URL = "http://localhost:8000/api/v1";
   context.mock.method(globalThis, "fetch", async () => Response.json({ detail: "Forbidden" }, { status: 403 }));
   await assert.rejects(logout(), (error) => error instanceof ApiError && error.status === 403);
 });
 
 test("authentication sends credentials and validates the API response", async (context) => {
-  process.env.NEXT_PUBLIC_API_URL = "http://localhost:8000/api/v1";
   context.mock.method(globalThis, "fetch", async (url: string | URL | Request, init?: RequestInit) => {
-    assert.equal(url, "http://localhost:8000/api/v1/auth/login");
+    assert.equal(url, "/api/v1/auth/login");
     assert.equal(init?.credentials, "include");
     assert.equal(init?.method, "POST");
     assert.equal(init?.cache, "no-store");
@@ -51,7 +48,6 @@ test("authentication sends credentials and validates the API response", async (c
 });
 
 test("registration posts to the configured API and accepts a successful 201 response", async (context) => {
-  process.env.NEXT_PUBLIC_API_URL = "http://localhost:8000/api/v1";
   const body = {
     email: "patient@example.test",
     password: "valid-password-123",
@@ -59,7 +55,7 @@ test("registration posts to the configured API and accepts a successful 201 resp
     role: "PATIENT",
   };
   context.mock.method(globalThis, "fetch", async (url: string | URL | Request, init?: RequestInit) => {
-    assert.equal(url, "http://localhost:8000/api/v1/auth/register");
+    assert.equal(url, "/api/v1/auth/register");
     assert.equal(init?.method, "POST");
     assert.equal(init?.credentials, "include");
     assert.equal(new Headers(init?.headers).get("Content-Type"), "application/json");
@@ -79,9 +75,8 @@ test("registration posts to the configured API and accepts a successful 201 resp
 });
 
 test("session lookup includes browser-managed credentials and prevents caching", async (context) => {
-  process.env.NEXT_PUBLIC_API_URL = "http://localhost:8000/api/v1";
   context.mock.method(globalThis, "fetch", async (url: string | URL | Request, init?: RequestInit) => {
-    assert.equal(url, "http://localhost:8000/api/v1/auth/me");
+    assert.equal(url, "/api/v1/auth/me");
     assert.equal(init?.method, "GET");
     assert.equal(init?.credentials, "include");
     assert.equal(init?.cache, "no-store");
@@ -96,7 +91,6 @@ test("session lookup includes browser-managed credentials and prevents caching",
 });
 
 test("API errors preserve status and message", async (context) => {
-  process.env.NEXT_PUBLIC_API_URL = "http://localhost:8000/api/v1";
   context.mock.method(globalThis, "fetch", async () => Response.json({ detail: "Not authenticated" }, { status: 401 }));
   await assert.rejects(authRequest("me"), (error) => error instanceof AuthError && error.status === 401 && error.message === "Not authenticated");
 });

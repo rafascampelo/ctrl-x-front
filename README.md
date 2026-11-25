@@ -20,7 +20,7 @@ Use uma versão atualizada do Node.js 22 e npm, conforme o package.json e o CI.
 
 O processo de release e a configuração do GitHub Actions estão em [CI-CD.md](CI-CD.md).
 
-Antes de iniciar, crie `.env.local` se ainda não existir e configure `NEXT_PUBLIC_API_URL` para a API local (por exemplo, `http://localhost:8000/api/v1`). Preserve o arquivo e os valores locais existentes.
+Antes de iniciar, crie `.env.local` se ainda não existir e configure `API_URL` para a API local (por exemplo, `http://localhost:8000/api/v1`). Preserve o arquivo e os valores locais existentes.
 
 ```powershell
 npm ci
@@ -48,15 +48,15 @@ npm start
 
 ## Conexão com o backend
 
-Para autenticação, configure `NEXT_PUBLIC_API_URL` com a URL pública da API incluindo `/api/v1` e reinicie ou reconstrua o frontend. Configure `CORS_ORIGINS` do backend com a origem exata do frontend. O backend usa cookie `SameSite=None; Secure` fora de development para permitir chamadas cross-site; se o navegador bloquear cookies de terceiros, use domínios próprios no mesmo site ou proxy de mesma origem. O cadastro não inicia sessão e encaminha para login. A sessão expira em 15 minutos.
+O navegador acessa a API em caminhos relativos sob `/api/v1`. O Next.js encaminha as chamadas para `API_URL`, por exemplo `https://<host-da-railway>/api/v1` em produção. A variável anterior `NEXT_PUBLIC_API_URL` continua aceita como fallback. Na Railway, inclua a origem HTTPS exata do frontend em `CORS_ORIGINS`. Para desenvolvimento HTTP, use `APP_ENV=development` e autorize `http://localhost:3000`.
 
+Login, renovação e logout usam o JWT HttpOnly emitido pelo FastAPI. O proxy restringe o cookie ao host do frontend e ao caminho `/api/v1`, com `SameSite=Lax`. O FastAPI inclui `Secure` fora de desenvolvimento. A API recebe somente o cookie da sessão e o Origin original. Respostas do proxy usam `Cache-Control: private, no-store`. O indicador de saúde consulta `/api/v1/health`, encaminhado ao `/health` do FastAPI.
 
-Variáveis `NEXT_PUBLIC_*` são públicas e devem conter somente configuração pública.
+A API aceita documentos de até 10 MiB. Na Vercel, o corpo de uma requisição a uma Function tem limite padrão de 4,5 MB, incluindo o multipart. Confirme a capacidade do projeto antes de promover a alteração se o ambiente deve aceitar arquivos até 10 MiB. Consulte os [limites de Functions](https://vercel.com/docs/functions/limitations#request-body-size).
 
-A autenticação, os serviços e o indicador de API usam a mesma `NEXT_PUBLIC_API_URL`.
-O indicador consulta `GET /health` no host dessa URL, com validação Zod de `{"status":"ok"}`.
-A API precisa permitir CORS para a origem do frontend.
-A interface apresenta carregamento, disponibilidade, falha e um botão para repetir a consulta.
+Para executar a regressão, rode `npx playwright install chromium webkit`, `npm run build` e `npm run test:e2e`. A suíte inicia o build local e uma API simulada em loopback.
+
+Para validar em um iPhone, use um ambiente HTTPS aprovado e uma conta de teste. Mantenha a prevenção de rastreamento ativada. Em Safari, Chrome e Edge, entre pela tela de login, confirme o dashboard, recarregue a página, navegue para outra tela protegida e volte ao dashboard. Saia e tente abrir a área protegida novamente. No inspetor, confira somente host, caminho e status. Login e `/api/v1/auth/me` devem retornar 200 na origem do frontend durante a sessão. Após sair, `/api/v1/auth/me` deve retornar 401. Evite exportar headers ou corpos de requisição.
 
 O endpoint local `/api/health` mede somente a disponibilidade do frontend Next.js e não depende
 do backend.
