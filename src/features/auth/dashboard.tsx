@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ContentState } from "@/components/ui/content-state";
-import { LogoutButton } from "./logout-button";
 import { CareError, CareLoading } from "@/features/care/states";
 import { getPatientCalendar, getPatientTimeline } from "@/services/timeline";
 import { historyMonthKey } from "@/types/timeline";
@@ -173,7 +172,6 @@ export function Dashboard({ role }: { role: User["role"] }) {
               </Link>
             </nav>
           </details>
-          <LogoutButton />
         </div>
       </header>
 
