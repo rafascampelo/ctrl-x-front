@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import {
   useInfiniteQuery,
@@ -270,14 +269,6 @@ export function PrivateDocuments({ patientId }: { patientId?: string }) {
 
   return (
     <div className={styles.stack}>
-      {isProfessional && patientId && patientQuery.data && (
-        <div>
-          <Link href={`/professional/patients/${patientId}`}>
-            ← Voltar para ficha de {patientQuery.data.full_name}
-          </Link>
-        </div>
-      )}
-
       <div className={styles.layout}>
         {/* Coluna Esquerda: Envio Seguro */}
         <section className={styles.surface} aria-labelledby="upload-doc-title">
