@@ -161,23 +161,23 @@
   margin: 0.5rem 0 1.25rem;
 }
 
-.painMetrics {
+.historyMetrics {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
   margin: 0;
 }
 
-.painMetrics div {
+.historyMetrics div {
   flex: 1 1 8rem;
 }
 
-.painMetrics dt {
+.historyMetrics dt {
   color: var(--color-muted);
   font-size: 0.875rem;
 }
 
-.painMetrics dd {
+.historyMetrics dd {
   margin: 0;
   color: var(--color-text);
   font-size: 1.375rem;
