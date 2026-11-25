@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import type { ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { authRequest, dashboardPath } from "@/features/auth/auth";
+import { LogoutButton } from "@/features/auth/logout-button";
 import styles from "./app-shell.module.css";
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -18,20 +19,23 @@ export function AppShell({ children }: { children: ReactNode }) {
     ? "/patient/dashboard"
     : "/professional/dashboard";
   const patient = pathname.startsWith("/patient/");
-  const homeSession = useQuery({
+  const workspaceSession = useQuery({
     queryKey: ["auth", "me"],
     queryFn: () => authRequest("me"),
-    enabled: pathname === "/",
+    enabled: protectedArea || pathname === "/",
     retry: false,
     staleTime: 0,
     refetchOnWindowFocus: false,
   });
+  const validWorkspace =
+    protectedArea &&
+    workspaceSession.data?.role === (patient ? "PATIENT" : "PROFESSIONAL");
 
   useEffect(() => {
-    if (pathname === "/" && homeSession.data) {
-      router.replace(dashboardPath(homeSession.data.role));
+    if (pathname === "/" && workspaceSession.data) {
+      router.replace(dashboardPath(workspaceSession.data.role));
     }
-  }, [pathname, homeSession.data, router]);
+  }, [pathname, workspaceSession.data, router]);
   const workspaceLinks = patient
     ? [
         { href: "/patient/dashboard", label: "Visão geral" },
@@ -90,13 +94,17 @@ export function AppShell({ children }: { children: ReactNode }) {
                 Criar conta
               </Link>
             </nav>
+          ) : validWorkspace ? (
+            <div className={styles.workspaceActions}>
+              <span className={styles.workspaceLabel}>
+                {patient ? "Área do paciente" : "Área do fisioterapeuta"}
+              </span>
+              <LogoutButton />
+            </div>
           ) : null}
         </div>
-        {protectedArea && (
+        {validWorkspace && (
           <nav aria-label={patient ? "Menu da área do paciente" : "Menu da área do fisioterapeuta"} className={styles.workspaceNav}>
-            <span className={styles.workspaceLabel}>
-              {patient ? "Área do paciente" : "Área do fisioterapeuta"}
-            </span>
             <div className={styles.workspaceLinks}>
               {workspaceLinks.map((item) => (
                 <Link
@@ -114,7 +122,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </header>
 
       <main className={styles.main} id="conteudo" tabIndex={-1}>
-        {pathname === "/" && homeSession.isPending ? (
+        {pathname === "/" && workspaceSession.isPending ? (
           <p className={styles.sessionCheck} role="status">
             Verificando seu espaço de cuidado…
           </p>
