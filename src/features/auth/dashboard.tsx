@@ -258,15 +258,56 @@ export function Dashboard({ role }: { role: User["role"] }) {
 
         <div className={styles.headerActions}>
           <details className={styles.accountMenu}>
-            <summary>Minha conta</summary>
-            <nav aria-label="Atalhos da conta" className={styles.accountMenuPanel}>
-              <Link href={patient ? "/patient/profile" : "/professional/profile"}>
-                Editar meu perfil
-              </Link>
-              <Link href={patient ? "/patient/physiotherapist" : "/professional/patients"}>
-                {patient ? "Gerenciar fisioterapeuta" : "Gerenciar pacientes"}
-              </Link>
-            </nav>
+            <summary>
+              <span>Minha conta</span>
+              <span className={styles.menuIcon} aria-hidden="true">
+                <span />
+                <span />
+                <span />
+              </span>
+            </summary>
+            <div className={styles.accountMenuPanel}>
+              <div className={styles.accountHeader}>
+                <div className={styles.avatar} aria-hidden="true">
+                  {(firstName?.[0] ?? session.data.email[0]).toUpperCase()}
+                </div>
+                <div>
+                  <strong className={styles.accountName}>
+                    {profile.data?.full_name || "Sua conta"}
+                  </strong>
+                  <span className={styles.accountRole}>
+                    {patient ? "Paciente" : "Fisioterapeuta"}
+                  </span>
+                </div>
+              </div>
+              <dl className={styles.accountList}>
+                <dt>E-mail cadastrado</dt>
+                <dd>{session.data.email}</dd>
+                {profile.data?.role === "PROFESSIONAL" && (
+                  <>
+                    <dt>Código para vínculo</dt>
+                    <dd className={styles.copyBox}>
+                      <code className={styles.code}>{profile.data.id}</code>
+                      <button
+                        type="button"
+                        className={styles.copyButton}
+                        onClick={() => void copyCode(profile.data!.id)}
+                      >
+                        {copied ? "Copiado!" : "Copiar código"}
+                      </button>
+                    </dd>
+                  </>
+                )}
+              </dl>
+              <nav aria-label="Atalhos da conta" className={styles.accountMenuLinks}>
+                <Link href={patient ? "/patient/profile" : "/professional/profile"}>
+                  Editar meu perfil
+                </Link>
+                <Link href={patient ? "/patient/physiotherapist" : "/professional/patients"}>
+                  {patient ? "Gerenciar fisioterapeuta" : "Gerenciar pacientes"}
+                </Link>
+              </nav>
+            </div>
           </details>
         </div>
       </header>
@@ -689,43 +730,6 @@ export function Dashboard({ role }: { role: User["role"] }) {
           )}
         </div>
 
-        <aside className={styles.account} aria-labelledby="account-title">
-          <div className={styles.accountHeader}>
-            <div className={styles.avatar} aria-hidden="true">
-              {(firstName?.[0] ?? session.data.email[0]).toUpperCase()}
-            </div>
-            <div>
-              <h2 id="account-title">
-                {profile.data?.full_name || "Sua conta"}
-              </h2>
-              <span className={styles.accountRole}>
-                {patient ? "Paciente" : "Fisioterapeuta"}
-              </span>
-            </div>
-          </div>
-
-          <dl className={styles.accountList}>
-            <dt>E-mail cadastrado</dt>
-            <dd>{session.data.email}</dd>
-
-            {profile.data?.role === "PROFESSIONAL" && (
-              <>
-                <dt>Código para vínculo</dt>
-                <dd className={styles.copyBox}>
-                  <code className={styles.code}>{profile.data.id}</code>
-                  <button
-                    type="button"
-                    className={styles.copyButton}
-                    onClick={() => void copyCode(profile.data!.id)}
-                  >
-                    {copied ? "Copiado!" : "Copiar código"}
-                  </button>
-                </dd>
-              </>
-            )}
-          </dl>
-
-        </aside>
       </div>
     </section>
   );

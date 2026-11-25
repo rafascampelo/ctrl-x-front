@@ -118,20 +118,43 @@ export function AppShell({ children }: { children: ReactNode }) {
           ) : null}
         </div>
         {validWorkspace && (
-          <nav aria-label={patient ? "Menu da área do paciente" : "Menu da área do fisioterapeuta"} className={styles.workspaceNav}>
-            <div className={styles.workspaceLinks}>
-              {workspaceLinks.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={styles.workspaceLink}
-                  aria-current={pathname === item.href ? "page" : undefined}
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </div>
-          </nav>
+          <>
+            <nav aria-label={patient ? "Menu da área do paciente" : "Menu da área do fisioterapeuta"} className={styles.workspaceNav}>
+              <div className={styles.workspaceLinks}>
+                {workspaceLinks.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={styles.workspaceLink}
+                    aria-current={pathname === item.href ? "page" : undefined}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            </nav>
+            <details className={styles.mobileWorkspaceNav}>
+              <summary>
+                <span className={styles.mobileNavText}>
+                  <span className={styles.mobileNavCaption}>Navegar pelo seu espaço</span>
+                  <strong>{workspaceLinks.find((item) => item.href === pathname)?.label ?? (patient ? "Área do paciente" : "Área do fisioterapeuta")}</strong>
+                </span>
+                <span className={styles.mobileNavChevron} aria-hidden="true" />
+              </summary>
+              <nav aria-label={patient ? "Páginas do paciente" : "Páginas do fisioterapeuta"} className={styles.mobileNavLinks}>
+                {workspaceLinks.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    aria-current={pathname === item.href ? "page" : undefined}
+                    onClick={(event) => event.currentTarget.closest("details")?.removeAttribute("open")}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </nav>
+            </details>
+          </>
         )}
         {validWorkspace && backHref && (
           <div className={styles.backRow}>
