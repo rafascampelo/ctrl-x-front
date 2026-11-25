@@ -33,12 +33,16 @@ test("calendar preserves zero intensity and its local monthly totals", async (t)
   const fixture = {
     month: "2026-11",
     timezone: "America/Sao_Paulo",
-    days: [{ date: "2026-11-01", pain_count: 1 }],
+    days: [
+      { date: "2026-11-01", pain_count: 1 },
+      { date: "2026-11-02", pain_count: 0, clinical_record_count: 2 },
+    ],
     pain: { count: 1, average_intensity: 0, latest_intensity: 0 },
   };
   const request = t.mock.method(globalThis, "fetch", async () => Response.json(fixture));
   const result = await getPatientCalendar(fixture.month, fixture.timezone);
   assert.deepEqual(result.pain, fixture.pain);
+  assert.deepEqual(result.days.map((day) => day.clinical_record_count), [0, 2]);
   const [input] = request.mock.calls[0].arguments as unknown as [string];
   const url = new URL(input);
   assert.equal(url.pathname, "/api/v1/me/calendar");

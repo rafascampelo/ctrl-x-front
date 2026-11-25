@@ -63,12 +63,16 @@ export function Dashboard({ role }: { role: User["role"] }) {
   const now = new Date();
   const month = historyMonthKey(now);
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  const painSummary = useQuery({
+  const calendarSummary = useQuery({
     queryKey: ["care", userId, "history", "calendar", month, timezone],
     queryFn: ({ signal }) => getPatientCalendar(month, timezone, signal),
     enabled: !!userId && isValidRole && role === "PATIENT",
     gcTime: 0,
   });
+  const finalizedRecords = calendarSummary.data?.days.reduce(
+    (total, day) => total + day.clinical_record_count,
+    0,
+  );
 
   if (
     session.isPending ||
@@ -236,10 +240,10 @@ export function Dashboard({ role }: { role: User["role"] }) {
       <div className={styles.layout}>
         <div className={styles.primaryColumn}>
           {patient && (
-            <section className={styles.surface} aria-labelledby="pain-summary-title">
+            <section className={styles.surface} aria-labelledby="history-summary-title">
               <div className={styles.surfaceHeader}>
                 <div>
-                  <h2 id="pain-summary-title">Sua dor neste mês</h2>
+                  <h2 id="history-summary-title">Seu histórico neste mês</h2>
                   <p className={styles.metricHint}>
                     {new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric" }).format(now)}
                   </p>
@@ -248,34 +252,44 @@ export function Dashboard({ role }: { role: User["role"] }) {
                   Abrir calendário
                 </Link>
               </div>
-              {painSummary.isPending ? (
-                <CareLoading title="Carregando resumo de dor" />
-              ) : painSummary.isError ? (
+              {calendarSummary.isPending ? (
+                <CareLoading title="Carregando resumo do mês" />
+              ) : calendarSummary.isError ? (
                 <CareError
-                  error={painSummary.error}
-                  fetching={painSummary.isFetching}
-                  retry={() => void painSummary.refetch()}
+                  error={calendarSummary.error}
+                  fetching={calendarSummary.isFetching}
+                  retry={() => void calendarSummary.refetch()}
                 />
-              ) : painSummary.data.pain.count === 0 ? (
-                <p className={styles.mutedText}>
-                  Nenhum registro de dor neste mês.{" "}
-                  <Link href="/patient/pain-diary">Registrar no diário</Link>
-                </p>
               ) : (
-                <dl className={styles.painMetrics}>
-                  <div>
-                    <dt>Registros</dt>
-                    <dd>{painSummary.data.pain.count}</dd>
-                  </div>
-                  <div>
-                    <dt>Intensidade média</dt>
-                    <dd>{painSummary.data.pain.average_intensity?.toLocaleString("pt-BR")}/10</dd>
-                  </div>
-                  <div>
-                    <dt>Última intensidade</dt>
-                    <dd>{painSummary.data.pain.latest_intensity}/10</dd>
-                  </div>
-                </dl>
+                <>
+                  <dl className={styles.historyMetrics}>
+                    <div>
+                      <dt>Registros de dor</dt>
+                      <dd>{calendarSummary.data.pain.count}</dd>
+                    </div>
+                    {calendarSummary.data.pain.count > 0 && (
+                      <>
+                        <div>
+                          <dt>Intensidade média</dt>
+                          <dd>{calendarSummary.data.pain.average_intensity?.toLocaleString("pt-BR")}/10</dd>
+                        </div>
+                        <div>
+                          <dt>Última intensidade</dt>
+                          <dd>{calendarSummary.data.pain.latest_intensity}/10</dd>
+                        </div>
+                      </>
+                    )}
+                    <div>
+                      <dt>Prontuários finalizados</dt>
+                      <dd>{finalizedRecords}</dd>
+                    </div>
+                  </dl>
+                  {calendarSummary.data.pain.count === 0 && (
+                    <p className={styles.mutedText}>
+                      <Link href="/patient/pain-diary">Registrar dor no diário</Link>
+                    </p>
+                  )}
+                </>
               )}
             </section>
           )}
