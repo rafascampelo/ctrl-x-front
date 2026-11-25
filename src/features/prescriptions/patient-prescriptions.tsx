@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
+  type InfiniteData,
   useInfiniteQuery,
   useMutation,
   useQueryClient,
@@ -28,6 +29,14 @@ export function PatientPrescriptions() {
   const client = useQueryClient();
   const [notice, setNotice] = useState("");
   const [completingId, setCompletingId] = useState<string | null>(null);
+  const [today, setToday] = useState(() => new Date().toDateString());
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setToday(new Date().toDateString());
+    }, 60_000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   const query = useInfiniteQuery({
     queryKey: ["care", user.id, "prescriptions"],
@@ -41,8 +50,23 @@ export function PatientPrescriptions() {
   const completeMutation = useMutation({
     mutationFn: (prescriptionId: string) =>
       logPrescriptionCompletion(prescriptionId),
-    onSuccess: async () => {
-      setCompletingId(null);
+    onSuccess: async (completion, prescriptionId) => {
+      client.setQueryData<
+        InfiniteData<Awaited<ReturnType<typeof listPatientPrescriptions>>, string | undefined>
+      >(["care", user.id, "prescriptions"], (current) =>
+        current && {
+          ...current,
+          pages: current.pages.map((page) => ({
+            ...page,
+            items: page.items.map((rx) =>
+              rx.id === prescriptionId &&
+              !rx.completions.some((item) => item.id === completion.id)
+                ? { ...rx, completions: [...rx.completions, completion] }
+                : rx,
+            ),
+          })),
+        },
+      );
       setNotice("Sessão de exercícios registrada no seu calendário.");
       await client.invalidateQueries({
         queryKey: ["care", user.id, "prescriptions"],
@@ -117,6 +141,10 @@ export function PatientPrescriptions() {
           {prescriptions.map((rx) => {
             const isLoggingThis =
               completeMutation.isPending && completingId === rx.id;
+            const completedToday = rx.completions.some(
+              (completion) =>
+                new Date(completion.completed_at).toDateString() === today,
+            );
 
             return (
               <article key={rx.id} className={styles.prescriptionCard}>
@@ -164,8 +192,10 @@ export function PatientPrescriptions() {
                     <strong>{rx.completions.length}</strong>
                   </span>
                   <Button
-                    disabled={completeMutation.isPending}
+                    className={completedToday ? styles.completedButton : undefined}
+                    disabled={completeMutation.isPending || completedToday}
                     onClick={() => {
+                      if (completedToday || completeMutation.isPending) return;
                       setNotice("");
                       setCompletingId(rx.id);
                       completeMutation.mutate(rx.id);
@@ -173,7 +203,9 @@ export function PatientPrescriptions() {
                   >
                     {isLoggingThis
                       ? "Registrando…"
-                      : "Marcar treino como concluído"}
+                      : completedToday
+                        ? "Concluído hoje"
+                        : "Marcar treino como concluído"}
                   </Button>
                 </div>
               </article>
