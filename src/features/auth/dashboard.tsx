@@ -6,9 +6,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ContentState } from "@/components/ui/content-state";
-import { LogoutButton } from "./logout-button";
 import { CareError, CareLoading } from "@/features/care/states";
-import { getPatientCalendar } from "@/services/timeline";
+import { getPatientCalendar, getPatientTimeline } from "@/services/timeline";
 import { historyMonthKey } from "@/types/timeline";
 import { getAllLinks, getPatients, getProfile } from "@/services/care";
 import ui from "@/components/ui/ui.module.css";
@@ -61,11 +60,23 @@ export function Dashboard({ role }: { role: User["role"] }) {
   });
 
   const now = new Date();
+  const todayKey = [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, "0"),
+    String(now.getDate()).padStart(2, "0"),
+  ].join("-");
   const month = historyMonthKey(now);
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const calendarSummary = useQuery({
     queryKey: ["care", userId, "history", "calendar", month, timezone],
     queryFn: ({ signal }) => getPatientCalendar(month, timezone, signal),
+    enabled: !!userId && isValidRole && role === "PATIENT",
+    gcTime: 0,
+  });
+  const dailyRecords = useQuery({
+    queryKey: ["care", userId, "timeline", todayKey, timezone],
+    queryFn: ({ signal }) =>
+      getPatientTimeline({ date: todayKey, timezone }, signal),
     enabled: !!userId && isValidRole && role === "PATIENT",
     gcTime: 0,
   });
@@ -112,6 +123,13 @@ export function Dashboard({ role }: { role: User["role"] }) {
     links.data?.filter((link) => link.status === "active") ?? [];
   const pendingLinks =
     links.data?.filter((link) => link.status === "pending") ?? [];
+  const todaySummary = calendarSummary.data?.days.find(
+    (day) => day.date === todayKey,
+  );
+  const todayPainCount = todaySummary?.pain_count ?? 0;
+  const todayExerciseCount = todaySummary?.exercise_count ?? 0;
+  const todayEvents =
+    dailyRecords.data?.items.filter((event) => event.category !== "clinical_record") ?? [];
 
   async function copyCode(code: string) {
     try {
@@ -125,34 +143,6 @@ export function Dashboard({ role }: { role: User["role"] }) {
 
   return (
     <section className={styles.page} aria-labelledby="dashboard-title">
-      <nav className={styles.subNav} aria-label="Navegação do espaço">
-        <Link
-          href={patient ? "/patient/dashboard" : "/professional/dashboard"}
-          aria-current="page"
-        >
-          Visão geral
-        </Link>
-        {patient && (
-          <>
-            <Link href="/patient/pain-diary">Diário de dor</Link>
-            <Link href="/patient/timeline">Calendário</Link>
-            <Link href="/patient/exercises">Exercícios</Link>
-            <Link href="/patient/records">Prontuários</Link>
-            <Link href="/patient/documents">Documentos</Link>
-          </>
-        )}
-        <Link
-          href={
-            patient ? "/patient/physiotherapist" : "/professional/patients"
-          }
-        >
-          {patient ? "Meu fisioterapeuta" : "Meus pacientes"}
-        </Link>
-        <Link href={patient ? "/patient/profile" : "/professional/profile"}>
-          Meu perfil
-        </Link>
-      </nav>
-
       <header className={styles.header}>
         <div>
           <p className={ui.eyebrow}>Meu espaço · Ctrl X</p>
@@ -171,13 +161,109 @@ export function Dashboard({ role }: { role: User["role"] }) {
         </div>
 
         <div className={styles.headerActions}>
-          <span className={styles.roleBadge}>
-            {patient ? "Área do paciente" : "Área do fisioterapeuta"}
-          </span>
-          <LogoutButton />
+          <details className={styles.accountMenu}>
+            <summary>Minha conta</summary>
+            <nav aria-label="Atalhos da conta" className={styles.accountMenuPanel}>
+              <Link href={patient ? "/patient/profile" : "/professional/profile"}>
+                Editar meu perfil
+              </Link>
+              <Link href={patient ? "/patient/physiotherapist" : "/professional/patients"}>
+                {patient ? "Gerenciar fisioterapeuta" : "Gerenciar pacientes"}
+              </Link>
+            </nav>
+          </details>
         </div>
       </header>
 
+      {patient ? (
+        <section className={styles.dailySummary} aria-labelledby="daily-summary-title">
+          <div className={styles.dailyHeading}>
+            <div>
+              <p className={ui.eyebrow}>Seu dia</p>
+              <h2 id="daily-summary-title">Registros de hoje</h2>
+              <p className={styles.dailyDate}>
+                {new Intl.DateTimeFormat("pt-BR", {
+                  weekday: "long",
+                  day: "numeric",
+                  month: "long",
+                }).format(now)}
+              </p>
+            </div>
+          </div>
+          {calendarSummary.isPending ? (
+            <CareLoading title="Carregando seus registros de hoje" />
+          ) : calendarSummary.isError ? (
+            <CareError
+              error={calendarSummary.error}
+              fetching={calendarSummary.isFetching}
+              retry={() => void calendarSummary.refetch()}
+            />
+          ) : (
+            <>
+              <dl className={styles.dailyCounts}>
+                <div>
+                  <dt>Dores registradas</dt>
+                  <dd>{todayPainCount}</dd>
+                </div>
+                <div>
+                  <dt>Exercícios feitos</dt>
+                  <dd>{todayExerciseCount}</dd>
+                </div>
+              </dl>
+              <p className={styles.dailyMessage}>
+                {todayPainCount + todayExerciseCount === 0
+                  ? "Você ainda não registrou exercícios feitos ou dores hoje."
+                  : "Registros feitos hoje:"}
+              </p>
+              {todayPainCount + todayExerciseCount > 0 && (
+                dailyRecords.isPending ? (
+                  <CareLoading title="Carregando detalhes dos registros" />
+                ) : dailyRecords.isError ? (
+                  <CareError
+                    error={dailyRecords.error}
+                    fetching={dailyRecords.isFetching}
+                    retry={() => void dailyRecords.refetch()}
+                  />
+                ) : todayEvents.length > 0 ? (
+                  <ul className={styles.dailyEventList}>
+                    {todayEvents.slice(0, 3).map((event) => (
+                      <li key={`${event.category}-${event.id}`}>
+                        <div>
+                          <strong>
+                            {event.category === "pain" ? "Dor registrada" : "Exercício concluído"}
+                          </strong>
+                          <p>{event.title}</p>
+                        </div>
+                        <time dateTime={event.occurred_at}>
+                          {new Intl.DateTimeFormat("pt-BR", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          }).format(new Date(event.occurred_at))}
+                        </time>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className={styles.dailyMessage} role="status">
+                    Há registros contabilizados, mas não foi possível exibir os detalhes agora.
+                  </p>
+                )
+              )}
+              <div className={styles.dailyActions}>
+                <Link href="/patient/pain-diary" className={ui.button}>
+                  Registrar dor
+                </Link>
+                <Link href="/patient/exercises" className={[ui.button, ui.secondary].join(" ")}>
+                  Registrar exercício
+                </Link>
+                <Link href="/patient/timeline" className={styles.historyLink}>
+                  Ver histórico diário
+                </Link>
+              </div>
+            </>
+          )}
+        </section>
+      ) : (
       <div className={styles.metricsGrid}>
         <article className={styles.metricCard}>
           <span className={styles.metricLabel}>
@@ -236,6 +322,7 @@ export function Dashboard({ role }: { role: User["role"] }) {
           </span>
         </article>
       </div>
+      )}
 
       <div className={styles.layout}>
         <div className={styles.primaryColumn}>
@@ -327,7 +414,6 @@ export function Dashboard({ role }: { role: User["role"] }) {
             {patient ? (
               activeLinks.length > 0 ? (
                 <div className={styles.statusBox}>
-                  <span className={styles.statusPillActive}>Vínculo ativo</span>
                   <p className={styles.statusText}>
                     Você possui um fisioterapeuta autorizado para acompanhar sua
                     evolução clínica.
@@ -476,24 +562,6 @@ export function Dashboard({ role }: { role: User["role"] }) {
             )}
           </dl>
 
-          <nav aria-label="Atalhos da conta" className={styles.links}>
-            <Link
-              href={patient ? "/patient/profile" : "/professional/profile"}
-              className={[ui.button, ui.secondary].join(" ")}
-            >
-              Editar meu perfil
-            </Link>
-            <Link
-              href={
-                patient
-                  ? "/patient/physiotherapist"
-                  : "/professional/patients"
-              }
-              className={[ui.button, ui.secondary].join(" ")}
-            >
-              {patient ? "Gerenciar fisioterapeuta" : "Gerenciar pacientes"}
-            </Link>
-          </nav>
         </aside>
       </div>
     </section>
